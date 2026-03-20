@@ -804,6 +804,32 @@ lemma permT_basis_repr_symm_apply {n m : ℕ} {c : Fin n → C} {c1 : Fin m → 
   · intro t1 t2 h1 h2
     simp [h1, h2]
 
+def ComponentIdx.perm {n m : ℕ} {c : Fin n → C} {c1 : Fin m → C}
+    {σ : Fin m → Fin n} (h : PermCond c c1 σ) :
+    ComponentIdx (S := S) c ≃ ComponentIdx (S := S) c1 where
+  toFun b := fun i => Fin.cast (by simp [PermCond.preserve_color h]) (b (σ i))
+  invFun b := fun i => Fin.cast (by simp) (b (h.inv σ i))
+  left_inv b := by
+    ext i
+    simp only [Fin.cast_cast, Fin.val_cast]
+    rw [PermCond.inv_apply_apply σ h i]
+  right_inv b := by
+    ext i
+    simp only [Fin.cast_cast, Fin.val_cast]
+    rw [PermCond.apply_inv_apply]
+
+
+lemma permT_basis {n m : ℕ} {c : Fin n → C} {c1 : Fin m → C}
+    {σ : Fin m → Fin n} (h : PermCond c c1 σ) (b : ComponentIdx c) :
+    permT σ h (basis c b) = basis c1 (b.perm (S := S) h) := by
+  apply (basis c1).repr.injective
+  ext b'
+  rw [permT_basis_repr_symm_apply h]
+  simp [Finsupp.single_apply]
+  congr 1
+  rw [← Equiv.eq_symm_apply]
+  rfl
+
 lemma permT_eq_zero_iff {n m : ℕ} {c : Fin n → C} {c1 : Fin m → C}
     {σ : Fin m → Fin n} (h : PermCond c c1 σ) (t : S.Tensor c) :
     permT σ h t = 0 ↔ t = 0 := by

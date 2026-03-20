@@ -212,8 +212,19 @@ lemma toFieldStrength_contDiff {d} {n : WithTop ℕ∞} {A : ElectromagneticPote
 lemma toFieldStrength_antisymmetric_tensor {d} {A : ElectromagneticPotential d}
     (hA : Differentiable ℝ A) (x : SpaceTime d) :
     {A.toFieldStrength x | μ ν = - (A.toFieldStrength x | ν μ)}ᵀ := by
-
+  rw [toFieldStrength_eq_sum_tensor_basis]
+  simp [permT_basis]
   sorry
+
+lemma toFieldStrength_eval_eq {d} {A : ElectromagneticPotential d}
+      (hA : Differentiable ℝ A) (x : SpaceTime d) (μ ν : Fin (1 + d)) :
+    toField {A.toFieldStrength x | [μ] [ν]}ᵀ =
+    ∑ κ, (η (finSumFinEquiv.symm μ) κ * ∂_ κ A x (finSumFinEquiv.symm ν) -
+        η (finSumFinEquiv.symm μ) κ * ∂_ κ A x (finSumFinEquiv.symm ν)) := by
+  rw [toFieldStrength_eq_sum_tensor_basis hA]
+  sorry
+
+
 
 /-!
 
