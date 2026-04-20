@@ -37,27 +37,27 @@ open VectorLikeEvenPlane
 in the basis through that point is in the cubic. -/
 def LineInCubic (S : (PureU1 (2 * n.succ)).LinSols) : Prop :=
   ∀ (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = Pa g f) (a b : ℚ),
-  accCube (2 * n.succ) (a • P g + b • P! f) = 0
+  accCube (2 * n.succ) (a • Psymm g + b • Pshift f) = 0
 
 set_option backward.isDefEq.respectTransparency false in
 lemma lineInCubic_expand {S : (PureU1 (2 * n.succ)).LinSols} (h : LineInCubic S) :
     ∀ (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = Pa g f) (a b : ℚ),
-    3 * a * b * (a * accCubeTriLinSymm (P g) (P g) (P! f)
-    + b * accCubeTriLinSymm (P! f) (P! f) (P g)) = 0 := by
+    3 * a * b * (a * accCubeTriLinSymm (Psymm g) (Psymm g) (Pshift f)
+    + b * accCubeTriLinSymm (Pshift f) (Pshift f) (Psymm g)) = 0 := by
   intro g f hS a b
   have h1 := h g f hS a b
-  change accCubeTriLinSymm.toCubic (a • P g + b • P! f) = 0 at h1
+  change accCubeTriLinSymm.toCubic (a • Psymm g + b • Pshift f) = 0 at h1
   simp only [TriLinearSymm.toCubic_add] at h1
   simp only [HomogeneousCubic.map_smul,
     accCubeTriLinSymm.map_smul₁, accCubeTriLinSymm.map_smul₂, accCubeTriLinSymm.map_smul₃] at h1
   conv_lhs at h1 =>
     enter [1, 1, 1, 2]
     change accCube _ _
-    rw [P_accCube]
+    rw [Psymm_accCube]
   conv_lhs at h1 =>
     enter [1, 1, 2, 2]
     change accCube _ _
-    rw [P!_accCube]
+    rw [Pshift_accCube]
   rw [← h1]
   ring
 
@@ -100,13 +100,13 @@ lemma lineInCubicPerm_swap {S : (PureU1 (2 * n.succ)).LinSols}
     (LIC : LineInCubicPerm S) :
     ∀ (j : Fin n) (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = Pa g f),
       (S.val (evenShiftSnd j) - S.val (evenShiftFst j))
-      * accCubeTriLinSymm (P g) (P g) (basis!AsCharges j) = 0 := by
+      * accCubeTriLinSymm (Psymm g) (Psymm g) (shiftBasisAsCharges j) = 0 := by
   intro j g f h
   let S' := (FamilyPermutations (2 * n.succ)).linSolRep
     (Equiv.swap (evenShiftFst j) (evenShiftSnd j)) S
   have hSS' : ((FamilyPermutations (2 * n.succ)).linSolRep
     (Equiv.swap (evenShiftFst j) (evenShiftSnd j))) S = S' := rfl
-  obtain ⟨g', f', hall⟩ := span_basis_swap! j hSS' g f h
+  obtain ⟨g', f', hall⟩ := span_basis_swapShift j hSS' g f h
   have h1 := line_in_cubic_P_P_P! (lineInCubicPerm_self LIC) g f h
   have h2 := line_in_cubic_P_P_P!
     (lineInCubicPerm_self (lineInCubicPerm_permute LIC
@@ -115,13 +115,13 @@ lemma lineInCubicPerm_swap {S : (PureU1 (2 * n.succ)).LinSols}
   rw [accCubeTriLinSymm.map_add₃, h1, accCubeTriLinSymm.map_smul₃] at h2
   simpa using h2
 
-lemma P_P_P!_accCube' {S : (PureU1 (2 * n.succ.succ)).LinSols}
+lemma Psymm_Psymm_shiftBasis_accCube' {S : (PureU1 (2 * n.succ.succ)).LinSols}
     (f : Fin n.succ.succ → ℚ) (g : Fin n.succ → ℚ) (hS : S.val = Pa f g) :
-    accCubeTriLinSymm (P f) (P f) (basis!AsCharges (Fin.last n)) =
+    accCubeTriLinSymm (Psymm f) (Psymm f) (shiftBasisAsCharges (Fin.last n)) =
     - (S.val (evenShiftSnd (Fin.last n)) + S.val (evenShiftFst (Fin.last n))) *
     (2 * S.val evenShiftLast +
     S.val (evenShiftSnd (Fin.last n)) + S.val (evenShiftFst (Fin.last n))) := by
-  rw [P_P_P!_accCube f (Fin.last n)]
+  rw [Psymm_Psymm_shiftBasis_accCube f (Fin.last n)]
   have h1 := Pa_evenShiftLast f g
   have h2 := Pa_evenShiftFst f g (Fin.last n)
   have h3 := Pa_evenShiftSnd f g (Fin.last n)
@@ -146,7 +146,7 @@ lemma lineInCubicPerm_last_cond {S : (PureU1 (2 * n.succ.succ)).LinSols}
       (S.val evenShiftLast))) := by
   obtain ⟨g, f, hfg⟩ := span_basis S
   have h1 := lineInCubicPerm_swap LIC (Fin.last n) g f hfg
-  rw [P_P_P!_accCube' g f hfg] at h1
+  rw [Psymm_Psymm_shiftBasis_accCube' g f hfg] at h1
   simp only [Nat.succ_eq_add_one, neg_add_rev, mul_eq_zero] at h1
   cases h1 <;> rename_i h1
   · left
