@@ -9,6 +9,16 @@ public import Physlib.QFT.QED.AnomalyCancellation.BasisLinear
 public import Physlib.QFT.QED.AnomalyCancellation.VectorLike
 /-!
 # Charge splits for the odd case basis
+
+We define two ways of splitting the `2 * n + 1` charge indices into groups:
+
+- The **symmetric split** decomposes the charges via `(n + 1) + n`, giving index maps
+  `oddFst`, `oddSnd`, and `oddMid`.
+- The **shifted split** decomposes the charges via `1 + n + n`, giving index maps
+  `oddShiftFst`, `oddShiftSnd`, and `oddShiftZero`.
+
+These two splittings give rise to the two planes of ACC-satisfying basis vectors defined in
+`SymmPlane` and `ShiftPlane`, which are named after the splitting they use.
 -/
 
 @[expose] public section

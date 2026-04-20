@@ -8,6 +8,19 @@ module
 public import Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear.ChargeSplits
 /-!
 # The symmetric plane for the odd case basis
+
+The symmetric plane is the span of basis vectors `symmBasis`, each of which has charge `+1` at
+position `oddFst j` and charge `-1` at position `oddSnd j`. It is called "symmetric" because
+these positions come from the **symmetric split** of the `2 * n + 1` charge indices into
+`(n + 1) + n` (see `ChargeSplits`).
+
+## Key results
+
+- `symmBasisAsCharges` : The basis vectors as charge assignments.
+- `symmBasis` : The basis vectors as `LinSols`.
+- `Psymm` : The inclusion of the symmetric plane into charges.
+- `Psymm_accCube` : Charges from the symmetric plane satisfy the cubic ACC.
+- `Psymm'` : The inclusion of the symmetric plane into linear solutions.
 -/
 
 @[expose] public section

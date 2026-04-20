@@ -11,6 +11,16 @@ public import Physlib.QFT.QED.AnomalyCancellation.VectorLike
 
 # Charge splits for the even case basis
 
+We define two ways of splitting the `2 * n.succ` charge indices into groups:
+
+- The **symmetric (even) split** decomposes the charges via `n.succ + n.succ`, giving index maps
+  `evenFst` and `evenSnd`.
+- The **shifted even split** decomposes the charges via `1 + (n + n + 1)`, giving index maps
+  `evenShiftFst`, `evenShiftSnd`, `evenShiftZero`, and `evenShiftLast`.
+
+These two splittings give rise to the two planes of ACC-satisfying basis vectors defined in
+`SymmPlane` and `ShiftPlane`, which are named after the splitting they use.
+
 -/
 
 @[expose] public section

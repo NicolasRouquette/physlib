@@ -10,6 +10,19 @@ public import Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear.ChargeSplits
 
 # The shifted plane for the even case basis
 
+The shifted plane is the span of basis vectors `shiftBasis`, each of which has charge `+1` at
+position `evenShiftFst j` and charge `-1` at position `evenShiftSnd j`. It is called "shifted"
+because these positions come from the **shifted even split** of the `2 * n.succ` charge indices
+into `1 + (n + n + 1)` (see `ChargeSplits`).
+
+## Key results
+
+- `shiftBasisAsCharges` : The basis vectors as charge assignments.
+- `shiftBasis` : The basis vectors as `LinSols`.
+- `Pshift` : The inclusion of the shifted plane into charges.
+- `Pshift_accCube` : Charges from the shifted plane satisfy the cubic ACC.
+- `Pshift'` : The inclusion of the shifted plane into linear solutions.
+
 -/
 
 @[expose] public section

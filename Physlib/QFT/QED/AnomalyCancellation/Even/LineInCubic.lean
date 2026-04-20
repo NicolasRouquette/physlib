@@ -16,7 +16,7 @@ if the line through that point and through the two different planes formed by th
 `LinSols` lies in the cubic.
 
 We show that for a solution all its permutations satisfy this property, then there exists
-a permutation for which it lies in the plane spanned by the first part of the basis.
+a permutation for which it lies in the plane spanned by the symmetric part of the basis.
 
 The main reference for this file is:
 
@@ -64,12 +64,12 @@ lemma lineInCubic_expand {S : (PureU1 (2 * n.succ)).LinSols} (h : LineInCubic S)
 /--
 This lemma states that for a given `S` of type `(PureU1 (2 * n.succ)).AnomalyFreeLinear` and
 a proof `h` that the line through `S` lies on a cubic curve,
-for any functions `g : Fin n.succ → ℚ` and `f : Fin n → ℚ`, if `S.val = P g + P! f`,
-then `accCubeTriLinSymm.toFun (P g, P g, P! f) = 0`.
+for any functions `g : Fin n.succ → ℚ` and `f : Fin n → ℚ`, if `S.val = Psymm g + Pshift f`,
+then `accCubeTriLinSymm (Psymm g) (Psymm g) (Pshift f) = 0`.
 -/
-lemma line_in_cubic_P_P_P! {S : (PureU1 (2 * n.succ)).LinSols} (h : LineInCubic S) :
-    ∀ (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = P g + P! f),
-    accCubeTriLinSymm (P g) (P g) (P! f) = 0 := by
+lemma line_in_cubic_Psymm_Psymm_Pshift {S : (PureU1 (2 * n.succ)).LinSols} (h : LineInCubic S) :
+    ∀ (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = Psymm g + Pshift f),
+    accCubeTriLinSymm (Psymm g) (Psymm g) (Pshift f) = 0 := by
   intro g f hS
   linear_combination 2 / 3 * (lineInCubic_expand h g f hS 1 1) -
     (lineInCubic_expand h g f hS 1 2) / 6
@@ -107,8 +107,8 @@ lemma lineInCubicPerm_swap {S : (PureU1 (2 * n.succ)).LinSols}
   have hSS' : ((FamilyPermutations (2 * n.succ)).linSolRep
     (Equiv.swap (evenShiftFst j) (evenShiftSnd j))) S = S' := rfl
   obtain ⟨g', f', hall⟩ := span_basis_swapShift j hSS' g f h
-  have h1 := line_in_cubic_P_P_P! (lineInCubicPerm_self LIC) g f h
-  have h2 := line_in_cubic_P_P_P!
+  have h1 := line_in_cubic_Psymm_Psymm_Pshift (lineInCubicPerm_self LIC) g f h
+  have h2 := line_in_cubic_Psymm_Psymm_Pshift
     (lineInCubicPerm_self (lineInCubicPerm_permute LIC
     (Equiv.swap (evenShiftFst j) (evenShiftSnd j)))) g' f' hall.1
   rw [hall.2.1, hall.2.2] at h2
@@ -180,7 +180,7 @@ theorem lineInCubicPerm_vectorLike {S : (PureU1 (2 * n.succ.succ)).Sols}
 theorem lineInCubicPerm_in_plane (S : (PureU1 (2 * n.succ.succ)).Sols)
     (LIC : LineInCubicPerm S.1.1) : ∃ (M : (FamilyPermutations (2 * n.succ.succ)).group),
     (FamilyPermutations (2 * n.succ.succ)).linSolRep M S.1.1
-    ∈ Submodule.span ℚ (Set.range basis) :=
+    ∈ Submodule.span ℚ (Set.range symmBasis) :=
   vectorLikeEven_in_span S.1.1 (lineInCubicPerm_vectorLike LIC)
 
 end Even

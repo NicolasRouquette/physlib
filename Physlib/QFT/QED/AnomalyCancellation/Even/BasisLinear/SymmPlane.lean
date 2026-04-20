@@ -10,6 +10,21 @@ public import Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear.ChargeSplits
 
 # The symmetric plane for the even case basis
 
+The symmetric plane is the span of basis vectors `symmBasis`, each of which has charge `+1` at
+position `evenFst j` and charge `-1` at position `evenSnd j`. It is called "symmetric" because
+these positions come from the **symmetric (even) split** of the `2 * n.succ` charge indices into
+`n.succ + n.succ` (see `ChargeSplits`).
+
+## Key results
+
+- `symmBasisAsCharges` : The basis vectors as charge assignments.
+- `symmBasis` : The basis vectors as `LinSols`.
+- `Psymm` : The inclusion of the symmetric plane into charges.
+- `Psymm_accCube` : Charges from the symmetric plane satisfy the cubic ACC.
+- `Psymm'` : The inclusion of the symmetric plane into linear solutions.
+- `vectorLikeEven_in_span` : Every vector-like even solution is in the span of the symmetric
+  plane.
+
 -/
 
 @[expose] public section

@@ -8,6 +8,19 @@ module
 public import Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear.ChargeSplits
 /-!
 # The shifted plane for the odd case basis
+
+The shifted plane is the span of basis vectors `shiftBasis`, each of which has charge `+1` at
+position `oddShiftFst j` and charge `-1` at position `oddShiftSnd j`. It is called "shifted"
+because these positions come from the **shifted split** of the `2 * n + 1` charge indices into
+`1 + n + n` (see `ChargeSplits`).
+
+## Key results
+
+- `shiftBasisAsCharges` : The basis vectors as charge assignments.
+- `shiftBasis` : The basis vectors as `LinSols`.
+- `Pshift` : The inclusion of the shifted plane into charges.
+- `Pshift_accCube` : Charges from the shifted plane satisfy the cubic ACC.
+- `Pshift'` : The inclusion of the shifted plane into linear solutions.
 -/
 
 @[expose] public section
