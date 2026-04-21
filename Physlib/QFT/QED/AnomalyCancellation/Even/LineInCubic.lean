@@ -5,7 +5,7 @@ Authors: Joseph Tooby-Smith
 -/
 module
 
-public import Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear
+public import Physlib.QFT.QED.AnomalyCancellation.Even.Basis
 public import Physlib.QFT.QED.AnomalyCancellation.LineInPlaneCond
 /-!
 
@@ -36,40 +36,40 @@ open VectorLikeEvenPlane
 /-- A property on `LinSols`, satisfied if every point on the line between the two planes
 in the basis through that point is in the cubic. -/
 def LineInCubic (S : (PureU1 (2 * n.succ)).LinSols) : Prop :=
-  ∀ (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = Pa g f) (a b : ℚ),
-  accCube (2 * n.succ) (a • symmPlane g + b • shiftPlane f) = 0
+  ∀ (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = basisCharge g f) (a b : ℚ),
+  accCube (2 * n.succ) (a • symmPlaneAsCharges g + b • shiftPlaneAsCharges f) = 0
 
 set_option backward.isDefEq.respectTransparency false in
 lemma lineInCubic_expand {S : (PureU1 (2 * n.succ)).LinSols} (h : LineInCubic S) :
-    ∀ (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = Pa g f) (a b : ℚ),
-    3 * a * b * (a * accCubeTriLinSymm (symmPlane g) (symmPlane g) (shiftPlane f)
-    + b * accCubeTriLinSymm (shiftPlane f) (shiftPlane f) (symmPlane g)) = 0 := by
+    ∀ (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = basisCharge g f) (a b : ℚ),
+    3 * a * b * (a * accCubeTriLinSymm (symmPlaneAsCharges g) (symmPlaneAsCharges g) (shiftPlaneAsCharges f)
+    + b * accCubeTriLinSymm (shiftPlaneAsCharges f) (shiftPlaneAsCharges f) (symmPlaneAsCharges g)) = 0 := by
   intro g f hS a b
   have h1 := h g f hS a b
-  change accCubeTriLinSymm.toCubic (a • symmPlane g + b • shiftPlane f) = 0 at h1
+  change accCubeTriLinSymm.toCubic (a • symmPlaneAsCharges g + b • shiftPlaneAsCharges f) = 0 at h1
   simp only [TriLinearSymm.toCubic_add] at h1
   simp only [HomogeneousCubic.map_smul,
     accCubeTriLinSymm.map_smul₁, accCubeTriLinSymm.map_smul₂, accCubeTriLinSymm.map_smul₃] at h1
   conv_lhs at h1 =>
     enter [1, 1, 1, 2]
     change accCube _ _
-    rw [symmPlane_accCube]
+    rw [symmPlaneAsCharges_accCube]
   conv_lhs at h1 =>
     enter [1, 1, 2, 2]
     change accCube _ _
-    rw [shiftPlane_accCube]
+    rw [shiftPlaneAsCharges_accCube]
   rw [← h1]
   ring
 
 /--
 This lemma states that for a given `S` of type `(PureU1 (2 * n.succ)).AnomalyFreeLinear` and
 a proof `h` that the line through `S` lies on a cubic curve,
-for any functions `g : Fin n.succ → ℚ` and `f : Fin n → ℚ`, if `S.val = symmPlane g + shiftPlane f`,
-then `accCubeTriLinSymm.toFun (symmPlane g, symmPlane g, shiftPlane f) = 0`.
+for any functions `g : Fin n.succ → ℚ` and `f : Fin n → ℚ`, if `S.val = symmPlaneAsCharges g + shiftPlaneAsCharges f`,
+then `accCubeTriLinSymm.toFun (symmPlaneAsCharges g, symmPlaneAsCharges g, shiftPlaneAsCharges f) = 0`.
 -/
 lemma line_in_cubic_symmPlane_symmPlane_shiftPlane {S : (PureU1 (2 * n.succ)).LinSols} (h : LineInCubic S) :
-    ∀ (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = symmPlane g + shiftPlane f),
-    accCubeTriLinSymm (symmPlane g) (symmPlane g) (shiftPlane f) = 0 := by
+    ∀ (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = symmPlaneAsCharges g + shiftPlaneAsCharges f),
+    accCubeTriLinSymm (symmPlaneAsCharges g) (symmPlaneAsCharges g) (shiftPlaneAsCharges f) = 0 := by
   intro g f hS
   linear_combination 2 / 3 * (lineInCubic_expand h g f hS 1 1) -
     (lineInCubic_expand h g f hS 1 2) / 6
@@ -98,9 +98,9 @@ lemma lineInCubicPerm_permute {S : (PureU1 (2 * n.succ)).LinSols}
 set_option backward.isDefEq.respectTransparency false in
 lemma lineInCubicPerm_swap {S : (PureU1 (2 * n.succ)).LinSols}
     (LIC : LineInCubicPerm S) :
-    ∀ (j : Fin n) (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = Pa g f),
+    ∀ (j : Fin n) (g : Fin n.succ → ℚ) (f : Fin n → ℚ) (_ : S.val = basisCharge g f),
       (S.val (evenShiftSnd j) - S.val (evenShiftFst j))
-      * accCubeTriLinSymm (symmPlane g) (symmPlane g) (shiftBasisAsCharges j) = 0 := by
+      * accCubeTriLinSymm (symmPlaneAsCharges g) (symmPlaneAsCharges g) (shiftBasisAsCharges j) = 0 := by
   intro j g f h
   let S' := (FamilyPermutations (2 * n.succ)).linSolRep
     (Equiv.swap (evenShiftFst j) (evenShiftSnd j)) S
@@ -116,24 +116,24 @@ lemma lineInCubicPerm_swap {S : (PureU1 (2 * n.succ)).LinSols}
   simpa using h2
 
 lemma symmPlane_symmPlane_shiftBasisAsCharges_accCube' {S : (PureU1 (2 * n.succ.succ)).LinSols}
-    (f : Fin n.succ.succ → ℚ) (g : Fin n.succ → ℚ) (hS : S.val = Pa f g) :
-    accCubeTriLinSymm (symmPlane f) (symmPlane f) (shiftBasisAsCharges (Fin.last n)) =
+    (f : Fin n.succ.succ → ℚ) (g : Fin n.succ → ℚ) (hS : S.val = basisCharge f g) :
+    accCubeTriLinSymm (symmPlaneAsCharges f) (symmPlaneAsCharges f) (shiftBasisAsCharges (Fin.last n)) =
     - (S.val (evenShiftSnd (Fin.last n)) + S.val (evenShiftFst (Fin.last n))) *
     (2 * S.val evenShiftLast +
     S.val (evenShiftSnd (Fin.last n)) + S.val (evenShiftFst (Fin.last n))) := by
   rw [symmPlane_symmPlane_shiftBasisAsCharges_accCube f (Fin.last n)]
-  have h1 := Pa_evenShiftLast f g
-  have h2 := Pa_evenShiftFst f g (Fin.last n)
-  have h3 := Pa_evenShiftSnd f g (Fin.last n)
+  have h1 := basisCharge_evenShiftLast f g
+  have h2 := basisCharge_evenShiftFst f g (Fin.last n)
+  have h3 := basisCharge_evenShiftSnd f g (Fin.last n)
   simp only [Fin.succ_last, Nat.succ_eq_add_one] at h1 h2 h3
-  have hl : f (Fin.succ (Fin.last n)) = - Pa f g evenShiftLast := by
+  have hl : f (Fin.succ (Fin.last n)) = - basisCharge f g evenShiftLast := by
     simp_all only [Fin.succ_last, neg_neg]
   erw [hl] at h2
-  have hg : g (Fin.last n) = Pa f g (evenShiftFst (Fin.last n)) + Pa f g evenShiftLast := by
+  have hg : g (Fin.last n) = basisCharge f g (evenShiftFst (Fin.last n)) + basisCharge f g evenShiftLast := by
     linear_combination -(1 * h2)
   have hll : f (Fin.castSucc (Fin.last n)) =
-      - (Pa f g (evenShiftSnd (Fin.last n)) + Pa f g (evenShiftFst (Fin.last n))
-      + Pa f g evenShiftLast) := by
+      - (basisCharge f g (evenShiftSnd (Fin.last n)) + basisCharge f g (evenShiftFst (Fin.last n))
+      + basisCharge f g evenShiftLast) := by
     linear_combination h3 - 1 * hg
   rw [← hS] at hl hll
   rw [hl, hll]

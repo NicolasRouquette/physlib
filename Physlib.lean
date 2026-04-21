@@ -220,7 +220,7 @@ public import Physlib.QFT.PerturbationTheory.WickContraction.UncontractedList
 public import Physlib.QFT.QED.AnomalyCancellation.Basic
 public import Physlib.QFT.QED.AnomalyCancellation.BasisLinear
 public import Physlib.QFT.QED.AnomalyCancellation.ConstAbs
-public import Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear
+public import Physlib.QFT.QED.AnomalyCancellation.Even.Basis
 public import Physlib.QFT.QED.AnomalyCancellation.Even.LineInCubic
 public import Physlib.QFT.QED.AnomalyCancellation.Even.Parameterization
 public import Physlib.QFT.QED.AnomalyCancellation.LineInPlaneCond
