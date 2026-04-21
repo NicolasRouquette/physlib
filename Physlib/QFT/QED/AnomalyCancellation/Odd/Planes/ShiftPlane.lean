@@ -5,7 +5,7 @@ Authors: Joseph Tooby-Smith
 -/
 module
 
-public import Physlib.QFT.QED.AnomalyCancellation.Odd.BasisLinear.SymmPlane
+public import Physlib.QFT.QED.AnomalyCancellation.Odd.Planes.SymmPlane
 /-!
 # The shifted plane for the odd case
 
@@ -27,28 +27,25 @@ than in the middle.
 
 - `shiftPlaneAsCharges_accCube` : Charges from the shifted plane satisfy the cubic ACC.
 - `shiftBasis_linear_independent` : The shifted basis vectors are linearly independent.
-- `symmPlane_symmPlane_shiftBasisAsCharges_accCube` : The mixed cubic ACC from points in both
-  planes.
 - `linSolRep_swap_oddShift_eq_add` : Swapping elements equals adding a basis vector.
 
 ## Table of contents
 
-- A.2. The shifted split: Splitting the charges up via `1 + n + n`
-- A.3. The shifted shifted split: Splitting the charges up via `((1+n)+1) + n.succ`
-- A.4. Relating the splittings together
-- C. The second plane (shifted plane)
-  - C.1. The basis vectors of the shifted plane as charges
-  - C.2. Components of the basis vectors as charges
-  - C.3. The basis vectors satisfy the linear ACCs
-  - C.4. The basis vectors as `LinSols`
-  - C.5. The basis vectors are linearly independent
-  - C.6. Permutations equal adding basis vectors
-  - C.7. The inclusion of the shifted plane into charges (`shiftPlaneAsCharges`)
-  - C.8. Components of the shifted plane
-  - C.9. Points on the shifted plane satisfy the ACCs
-  - C.10. Kernel of the inclusion into charges
-  - C.11. The inclusion of the shifted plane into `LinSols` (`shiftPlane`)
-- D. The mixed cubic ACC from points in both planes
+- A.1. The shifted split: Splitting the charges up via `1 + n + n`
+- A.2. The shifted shifted split: Splitting the charges up via `((1+n)+1) + n.succ`
+- A.3. Relating the splittings together
+- B. The shifted plane
+  - B.1. The basis vectors of the shifted plane as charges
+  - B.2. Components of the basis vectors as charges
+  - B.3. The basis vectors satisfy the linear ACCs
+  - B.4. The basis vectors as `LinSols`
+  - B.5. The basis vectors are linearly independent
+  - B.6. Permutations equal adding basis vectors
+  - B.7. The inclusion of the shifted plane into charges (`shiftPlaneAsCharges`)
+  - B.8. Components of the shifted plane
+  - B.9. Points on the shifted plane satisfy the ACCs
+  - B.10. Kernel of the inclusion into charges
+  - B.11. The inclusion of the shifted plane into `LinSols` (`shiftPlane`)
 
 -/
 
@@ -66,7 +63,7 @@ section theDeltas
 
 /-!
 
-### A.2. The shifted split: Spltting the charges up via `1 + n + n`
+### A.1. The shifted split: Spltting the charges up via `1 + n + n`
 
 -/
 
@@ -99,7 +96,7 @@ lemma sum_oddShift (S : Fin (2 * n + 1) → ℚ) :
 
 /-!
 
-### A.3. The shifted shifted split: Spltting the charges up via `((1+n)+1) + n.succ`
+### A.2. The shifted shifted split: Spltting the charges up via `((1+n)+1) + n.succ`
 
 -/
 
@@ -128,7 +125,7 @@ def oddShiftShiftSnd (j : Fin n.succ) : Fin (2 * n.succ + 1) :=
 
 /-!
 
-### A.4. Relating the splittings together
+### A.3. Relating the splittings together
 
 -/
 lemma oddShiftShiftZero_eq_oddFst_zero : @oddShiftShiftZero n = oddFst 0 :=
@@ -194,13 +191,13 @@ end theDeltas
 
 /-!
 
-## C. The second plane (shifted plane)
+## B. The shifted plane
 
 -/
 
 /-!
 
-### C.1. The basis vectors of the shifted plane as charges
+### B.1. The basis vectors of the shifted plane as charges
 
 -/
 
@@ -217,7 +214,7 @@ def shiftBasisAsCharges (j : Fin n) : (PureU1 (2 * n + 1)).Charges :=
 
 /-!
 
-### C.2. Components of the basis vectors as charges
+### B.2. Components of the basis vectors as charges
 
 -/
 
@@ -294,7 +291,7 @@ lemma shiftBasisAsCharges_on_oddShiftZero (j : Fin n) :
 
 /-!
 
-### C.3. The basis vectors satisfy the linear ACCs
+### B.3. The basis vectors satisfy the linear ACCs
 
 -/
 
@@ -307,7 +304,7 @@ lemma shiftBasisAsCharges_linearACC (j : Fin n) :
 
 /-!
 
-### C.4. The basis vectors as `LinSols`
+### B.4. The basis vectors as `LinSols`
 
 -/
 
@@ -323,7 +320,7 @@ def shiftBasis (j : Fin n) : (PureU1 (2 * n + 1)).LinSols :=
 
 /-!
 
-### C.5. The basis vectors are linearly independent
+### B.5. The basis vectors are linearly independent
 
 -/
 
@@ -340,7 +337,7 @@ theorem shiftBasis_linear_independent : LinearIndependent ℚ (@shiftBasis n) :=
 
 /-!
 
-### C.6. Permutations equal adding basis vectors
+### B.6. Permutations equal adding basis vectors
 
 -/
 
@@ -366,7 +363,7 @@ lemma linSolRep_swap_oddShift_eq_add {S S' : (PureU1 (2 * n + 1)).LinSols} (j : 
 
 /-!
 
-### C.7. The inclusion of the shifted plane into charges (`shiftPlaneAsCharges`)
+### B.7. The inclusion of the shifted plane into charges (`shiftPlaneAsCharges`)
 
 -/
 
@@ -376,7 +373,7 @@ def shiftPlaneAsCharges (f : Fin n → ℚ) : (PureU1 (2 * n + 1)).Charges :=
 
 /-!
 
-### C.8. Components of the shifted plane
+### B.8. Components of the shifted plane
 
 -/
 
@@ -410,7 +407,7 @@ lemma shiftPlaneAsCharges_oddShiftZero (f : Fin n → ℚ) : shiftPlaneAsCharges
 
 /-!
 
-### C.9. Points on the shifted plane satisfy the ACCs
+### B.9. Points on the shifted plane satisfy the ACCs
 
 -/
 
@@ -433,7 +430,7 @@ lemma shiftPlaneAsCharges_accCube (f : Fin n → ℚ) : accCube (2 * n +1) (shif
 
 /-!
 
-### C.10. Kernel of the inclusion into charges
+### B.10. Kernel of the inclusion into charges
 
 -/
 
@@ -445,7 +442,7 @@ lemma shiftPlaneAsCharges_zero (f : Fin n → ℚ) (h : shiftPlaneAsCharges f = 
 
 /-!
 
-### C.11. The inclusion of the shifted plane into `LinSols`
+### B.11. The inclusion of the shifted plane into `LinSols`
 
 -/
 
@@ -459,31 +456,6 @@ lemma shiftPlane_val (f : Fin n → ℚ) :
   funext i
   rw [sum_of_anomaly_free_linear, sum_of_charges]
   rfl
-
-
-
-/-!
-
-## D. The mixed cubic ACC from points in both planes
-
--/
-
-set_option backward.isDefEq.respectTransparency false in
-lemma symmPlane_symmPlane_shiftBasisAsCharges_accCube (g : Fin n → ℚ) (j : Fin n) :
-    accCubeTriLinSymm (symmPlaneAsCharges g) (symmPlaneAsCharges g) (shiftBasisAsCharges j)
-    = (symmPlaneAsCharges g (oddShiftFst j))^2 - (g j)^2 := by
-  simp only [accCubeTriLinSymm, PureU1Charges_numberCharges, TriLinearSymm.mk₃_toFun_apply_apply]
-  rw [sum_oddShift, shiftBasisAsCharges_on_oddShiftZero]
-  simp only [mul_zero, Function.comp_apply, zero_add]
-  rw [Finset.sum_eq_single j, shiftBasisAsCharges_on_oddShiftFst_self,
-    shiftBasisAsCharges_on_oddShiftSnd_self]
-  · rw [← oddSnd_eq_oddShiftSnd, symmPlaneAsCharges_oddSnd]
-    ring
-  · intro k _ hkj
-    erw [shiftBasisAsCharges_on_oddShiftFst_other hkj.symm,
-      shiftBasisAsCharges_on_oddShiftSnd_other hkj.symm]
-    simp only [mul_zero, add_zero]
-  · simp
 
 end VectorLikeOddPlane
 

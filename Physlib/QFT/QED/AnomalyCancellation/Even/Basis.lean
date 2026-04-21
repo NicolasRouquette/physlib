@@ -5,7 +5,7 @@ Authors: Joseph Tooby-Smith
 -/
 module
 
-public import Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear.ShiftPlane
+public import Physlib.QFT.QED.AnomalyCancellation.Even.Planes.ShiftPlane
 /-!
 
 # The combined basis of the symmetric and shifted planes
@@ -48,6 +48,7 @@ plane.
   - 1.9. The basis vectors as a basis
 - 2. Every linear solution is the sum of a point from each plane
   - 2.1. Relation under permutations
+- 3. Mixed cubic anomaly cancellation conditions involving both planes
 
 ## iv. References
 
@@ -168,11 +169,11 @@ lemma basisCharge_zero_shift (f : Fin n.succ → ℚ) (g : Fin n → ℚ) (h : b
 
 -/
 /-- A point in the span of the whole basis. -/
-def basisLinSol (f : (Fin n.succ) ⊕ (Fin n) → ℚ) : (PureU1 (2 * n.succ)).LinSols :=
+def spanBasis (f : (Fin n.succ) ⊕ (Fin n) → ℚ) : (PureU1 (2 * n.succ)).LinSols :=
     ∑ i, f i • basis i
 
-lemma basisLinSol_symmPlane_shiftPlane (f : (Fin n.succ) ⊕ (Fin n) → ℚ) :
-    basisLinSol f = symmPlane (f ∘ Sum.inl) + shiftPlane (f ∘ Sum.inr) := by
+lemma spanBasis_symmPlane_shiftPlane (f : (Fin n.succ) ⊕ (Fin n) → ℚ) :
+    spanBasis f = symmPlane (f ∘ Sum.inl) + shiftPlane (f ∘ Sum.inr) := by
   exact Fintype.sum_sum_type _
 
 /-!
@@ -184,12 +185,12 @@ lemma basisLinSol_symmPlane_shiftPlane (f : (Fin n.succ) ⊕ (Fin n) → ℚ) :
 theorem basis_linear_independent : LinearIndependent ℚ (@basis n) := by
   apply Fintype.linearIndependent_iff.mpr
   intro f h
-  change basisLinSol f = 0 at h
-  have h1 : (basisLinSol f).val = 0 :=
+  change spanBasis f = 0 at h
+  have h1 : (spanBasis f).val = 0 :=
     (AddSemiconjBy.eq_zero_iff (ACCSystemLinear.LinSols.val 0)
     (congrFun (congrArg HAdd.hAdd (congrArg ACCSystemLinear.LinSols.val (id (Eq.symm h))))
     (ACCSystemLinear.LinSols.val 0))).mp rfl
-  rw [basisLinSol_symmPlane_shiftPlane] at h1
+  rw [spanBasis_symmPlane_shiftPlane] at h1
   change (symmPlane (f ∘ Sum.inl)).val +
     (shiftPlane (f ∘ Sum.inr)).val = 0 at h1
   rw [shiftPlane_val, symmPlane_val] at h1
@@ -207,9 +208,9 @@ theorem basis_linear_independent : LinearIndependent ℚ (@basis n) := by
 
 -/
 
-lemma basisLinSol_eq (f f' : (Fin n.succ) ⊕ (Fin n) → ℚ) : basisLinSol f = basisLinSol f' ↔ f = f' := by
+lemma spanBasis_eq (f f' : (Fin n.succ) ⊕ (Fin n) → ℚ) : spanBasis f = spanBasis f' ↔ f = f' := by
   refine Iff.intro (fun h => (funext (fun i => ?_))) (fun h => ?_)
-  · rw [basisLinSol, basisLinSol] at h
+  · rw [spanBasis, spanBasis] at h
     have h1 : ∑ i : Fin (succ n) ⊕ Fin n, (f i + (- f' i)) • basis i = 0 := by
       simp only [add_smul, neg_smul]
       rw [Finset.sum_add_distrib]
@@ -223,21 +224,21 @@ lemma basisLinSol_eq (f f' : (Fin n.succ) ⊕ (Fin n) → ℚ) : basisLinSol f =
     linarith
   · rw [h]
 
-lemma basisLinSol_elim_eq_iff (g g' : Fin n.succ → ℚ) (f f' : Fin n → ℚ) :
-    basisLinSol (Sum.elim g f) = basisLinSol (Sum.elim g' f') ↔ basisCharge g f = basisCharge g' f' := by
+lemma spanBasis_elim_eq_iff (g g' : Fin n.succ → ℚ) (f f' : Fin n → ℚ) :
+    spanBasis (Sum.elim g f) = spanBasis (Sum.elim g' f') ↔ basisCharge g f = basisCharge g' f' := by
   refine Iff.intro (fun h => ?_) (fun h => ?_)
-  · rw [basisLinSol_eq, Sum.elim_eq_iff] at h
+  · rw [spanBasis_eq, Sum.elim_eq_iff] at h
     rw [h.left, h.right]
   · apply ACCSystemLinear.LinSols.ext
-    rw [basisLinSol_symmPlane_shiftPlane, basisLinSol_symmPlane_shiftPlane]
+    rw [spanBasis_symmPlane_shiftPlane, spanBasis_symmPlane_shiftPlane]
     simp only [succ_eq_add_one, ACCSystemLinear.linSolsAddCommMonoid_add_val,
       symmPlane_val, shiftPlane_val]
     exact h
 
 lemma basisCharge_eq (g g' : Fin n.succ → ℚ) (f f' : Fin n → ℚ) :
     basisCharge g f = basisCharge g' f' ↔ g = g' ∧ f = f' := by
-  rw [← basisLinSol_elim_eq_iff, ← Sum.elim_eq_iff]
-  exact basisLinSol_eq _ _
+  rw [← spanBasis_elim_eq_iff, ← Sum.elim_eq_iff]
+  exact spanBasis_eq _ _
 
 /-!
 
@@ -309,6 +310,49 @@ lemma span_basis_swapShift {S : (PureU1 (2 * n.succ)).LinSols} (j : Fin n)
   rw [← add_assoc, ← h]
   apply linSolRep_swap_evenShift_eq_add at hS
   exact hS
+
+/-!
+
+## 3. Mixed cubic anomaly cancellation conditions involving both planes
+
+-/
+
+set_option backward.isDefEq.respectTransparency false in
+lemma symmPlane_symmPlane_shiftBasisAsCharges_accCube (g : Fin n.succ → ℚ) (j : Fin n) :
+    accCubeTriLinSymm (symmPlaneAsCharges g) (symmPlaneAsCharges g) (shiftBasisAsCharges j)
+    = g (j.succ) ^ 2 - g (j.castSucc) ^ 2 := by
+  simp only [succ_eq_add_one, accCubeTriLinSymm, PureU1Charges_numberCharges,
+    TriLinearSymm.mk₃_toFun_apply_apply]
+  rw [sum_evenShift, shiftBasisAsCharges_on_evenShiftZero, shiftBasisAsCharges_on_evenShiftLast]
+  simp only [mul_zero, add_zero, Function.comp_apply, zero_add]
+  rw [Finset.sum_eq_single j, shiftBasisAsCharges_on_evenShiftFst_self,
+    shiftBasisAsCharges_on_evenShiftSnd_self]
+  · simp only [evenShiftFst_eq_evenFst_succ, mul_one, evenShiftSnd_eq_evenSnd_castSucc, mul_neg]
+    rw [symmPlaneAsCharges_evenFst, symmPlaneAsCharges_evenSnd]
+    ring
+  · intro k _ hkj
+    erw [shiftBasisAsCharges_on_evenShiftFst_other hkj.symm,
+      shiftBasisAsCharges_on_evenShiftSnd_other hkj.symm]
+    simp only [mul_zero, add_zero]
+  · simp
+
+set_option backward.isDefEq.respectTransparency false in
+lemma shiftPlane_shiftPlane_symmBasisAsCharges_accCube (g : Fin n → ℚ) (j : Fin n.succ) :
+    accCubeTriLinSymm (shiftPlaneAsCharges g) (shiftPlaneAsCharges g) (symmBasisAsCharges j)
+    = (shiftPlaneAsCharges g (evenFst j))^2 - (shiftPlaneAsCharges g (evenSnd j))^2 := by
+  simp only [succ_eq_add_one, accCubeTriLinSymm, PureU1Charges_numberCharges,
+    TriLinearSymm.mk₃_toFun_apply_apply]
+  rw [sum_even]
+  simp only [Function.comp_apply]
+  rw [Finset.sum_eq_single j, symmBasisAsCharges_on_evenFst_self,
+    symmBasisAsCharges_on_evenSnd_self]
+  · simp only [mul_one, mul_neg]
+    ring
+  · intro k _ hkj
+    erw [symmBasisAsCharges_on_evenFst_other hkj.symm,
+      symmBasisAsCharges_on_evenSnd_other hkj.symm]
+    simp only [mul_zero, add_zero]
+  · simp
 
 end VectorLikeEvenPlane
 

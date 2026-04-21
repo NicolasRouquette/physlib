@@ -5,7 +5,7 @@ Authors: Joseph Tooby-Smith
 -/
 module
 
-public import Physlib.QFT.QED.AnomalyCancellation.Even.BasisLinear.SymmPlane
+public import Physlib.QFT.QED.AnomalyCancellation.Even.Planes.SymmPlane
 /-!
 
 # The shifted plane for the even case
@@ -29,22 +29,21 @@ boundary rather than symmetrically.
 
 ## iii. Table of contents
 
-- A.2. The shifted even split: Splitting the charges up via `1 + (n + n + 1)`
-- A.3. Lemmas relating the two splittings
-- C. The second plane (shifted plane)
-  - C.1. The basis vectors of the shifted plane as charges
-  - C.2. Components of the basis vectors
-  - C.3. The basis vectors satisfy the linear ACCs
-  - C.4. The basis vectors satisfy the cubic ACC
-  - C.5. The basis vectors as `LinSols`
-  - C.6. The basis vectors are linearly independent
-  - C.7. Permutations as additions of basis vectors
-  - C.8. The inclusion of the shifted plane into charges
-  - C.9. Components of the shifted plane
-  - C.10. Points satisfy the cubic ACC
-  - C.11. Kernel of the inclusion
-  - C.12. The inclusion of the plane into `LinSols`
-- D. Mixed cubic ACCs involving points from both planes
+- A.1. The shifted even split: Splitting the charges up via `1 + (n + n + 1)`
+- A.2. Lemmas relating the two splittings
+- B. The shifted plane
+  - B.1. The basis vectors of the shifted plane as charges
+  - B.2. Components of the basis vectors
+  - B.3. The basis vectors satisfy the linear ACCs
+  - B.4. The basis vectors satisfy the cubic ACC
+  - B.5. The basis vectors as `LinSols`
+  - B.6. The basis vectors are linearly independent
+  - B.7. Permutations as additions of basis vectors
+  - B.8. The inclusion of the shifted plane into charges
+  - B.9. Components of the shifted plane
+  - B.10. Points satisfy the cubic ACC
+  - B.11. Kernel of the inclusion
+  - B.12. The inclusion of the plane into `LinSols`
 
 ## iv. References
 
@@ -64,7 +63,7 @@ namespace VectorLikeEvenPlane
 
 /-!
 
-### A.2. The shifted even split: Spltting the charges up via `1 + (n + n + 1)`
+### A.1. The shifted even split: Spltting the charges up via `1 + (n + n + 1)`
 
 -/
 
@@ -111,7 +110,7 @@ lemma sum_evenShift (S : Fin (2 * n.succ) → ℚ) :
 
 /-!
 
-### A.3. Lemmas relating the two splittings
+### A.2. Lemmas relating the two splittings
 
 -/
 lemma evenShiftZero_eq_evenFst_zero : @evenShiftZero n = evenFst 0 := rfl
@@ -136,13 +135,13 @@ lemma evenShiftSnd_eq_evenSnd_castSucc (j : Fin n) : evenShiftSnd j = evenSnd j.
 
 /-!
 
-## C. The vectors of the basis spanning the second plane, via the shifted even split
+## B. The shifted plane
 
 -/
 
 /-!
 
-### C.1. The basis vectors of the shifted plane as charges
+### B.1. The basis vectors of the shifted plane as charges
 
 -/
 
@@ -158,7 +157,7 @@ def shiftBasisAsCharges (j : Fin n) : (PureU1 (2 * n.succ)).Charges :=
       0
 /-!
 
-### C.2. Components of the basis vectors
+### B.2. Components of the basis vectors
 
 -/
 
@@ -251,7 +250,7 @@ lemma shiftBasisAsCharges_on_evenShiftLast (j : Fin n) :
 
 /-!
 
-### C.3. The basis vectors satisfy the linear ACCs
+### B.3. The basis vectors satisfy the linear ACCs
 
 -/
 
@@ -264,7 +263,7 @@ lemma shiftBasisAsCharges_linearACC (j : Fin n) :
 
 /-!
 
-### C.4. The basis vectors satisfy the cubic ACC
+### B.4. The basis vectors satisfy the cubic ACC
 
 -/
 
@@ -282,7 +281,7 @@ lemma shiftBasisAsCharges_accCube (j : Fin n) :
 
 /-!
 
-### C.5. The basis vectors as `LinSols`
+### B.5. The basis vectors as `LinSols`
 
 -/
 /-- The basis vectors of the shifted plane as `LinSols`. -/
@@ -297,7 +296,7 @@ def shiftBasis (j : Fin n) : (PureU1 (2 * n.succ)).LinSols :=
 
 /-!
 
-### C.6. The basis vectors are linearly independent
+### B.6. The basis vectors are linearly independent
 
 -/
 
@@ -319,7 +318,7 @@ theorem shiftBasis_linear_independent : LinearIndependent ℚ (@shiftBasis n) :=
 
 /-!
 
-### C.7. Permutations as additions of basis vectors
+### B.7. Permutations as additions of basis vectors
 
 -/
 
@@ -344,7 +343,7 @@ lemma linSolRep_swap_evenShift_eq_add {S S' : (PureU1 (2 * n.succ)).LinSols} (j 
 
 /-!
 
-### C.8. The inclusion of the shifted plane into charges
+### B.8. The inclusion of the shifted plane into charges
 
 -/
 
@@ -354,7 +353,7 @@ def shiftPlaneAsCharges (f : Fin n → ℚ) : (PureU1 (2 * n.succ)).Charges :=
 
 /-!
 
-### C.9. Components of the shifted plane
+### B.9. Components of the shifted plane
 
 -/
 
@@ -392,7 +391,7 @@ lemma shiftPlaneAsCharges_evenShiftLast (f : Fin n → ℚ) : shiftPlaneAsCharge
 
 /-!
 
-### C.10. Points satisfy the cubic ACC
+### B.10. Points satisfy the cubic ACC
 
 -/
 
@@ -408,7 +407,7 @@ lemma shiftPlaneAsCharges_accCube (f : Fin n → ℚ) : accCube (2 * n.succ) (sh
 
 /-!
 
-### C.11. Kernel of the inclusion
+### B.11. Kernel of the inclusion
 
 -/
 
@@ -434,7 +433,7 @@ lemma smul_shiftBasisAsCharges_in_span (S : (PureU1 (2 * n.succ)).LinSols) (j : 
 
 /-!
 
-### C.12. The inclusion of the plane into `LinSols`
+### B.12. The inclusion of the plane into `LinSols`
 
 -/
 
@@ -448,49 +447,6 @@ lemma shiftPlane_val (f : Fin n → ℚ) :
   funext i
   rw [sum_of_anomaly_free_linear, sum_of_charges]
   rfl
-
-/-!
-
-## D. Mixed cubic ACCs involving points from both planes
-
--/
-
-set_option backward.isDefEq.respectTransparency false in
-lemma symmPlane_symmPlane_shiftBasisAsCharges_accCube (g : Fin n.succ → ℚ) (j : Fin n) :
-    accCubeTriLinSymm (symmPlaneAsCharges g) (symmPlaneAsCharges g) (shiftBasisAsCharges j)
-    = g (j.succ) ^ 2 - g (j.castSucc) ^ 2 := by
-  simp only [succ_eq_add_one, accCubeTriLinSymm, PureU1Charges_numberCharges,
-    TriLinearSymm.mk₃_toFun_apply_apply]
-  rw [sum_evenShift, shiftBasisAsCharges_on_evenShiftZero, shiftBasisAsCharges_on_evenShiftLast]
-  simp only [mul_zero, add_zero, Function.comp_apply, zero_add]
-  rw [Finset.sum_eq_single j, shiftBasisAsCharges_on_evenShiftFst_self,
-    shiftBasisAsCharges_on_evenShiftSnd_self]
-  · simp only [evenShiftFst_eq_evenFst_succ, mul_one, evenShiftSnd_eq_evenSnd_castSucc, mul_neg]
-    rw [symmPlaneAsCharges_evenFst, symmPlaneAsCharges_evenSnd]
-    ring
-  · intro k _ hkj
-    erw [shiftBasisAsCharges_on_evenShiftFst_other hkj.symm,
-      shiftBasisAsCharges_on_evenShiftSnd_other hkj.symm]
-    simp only [mul_zero, add_zero]
-  · simp
-
-set_option backward.isDefEq.respectTransparency false in
-lemma shiftPlane_shiftPlane_symmBasisAsCharges_accCube (g : Fin n → ℚ) (j : Fin n.succ) :
-    accCubeTriLinSymm (shiftPlaneAsCharges g) (shiftPlaneAsCharges g) (symmBasisAsCharges j)
-    = (shiftPlaneAsCharges g (evenFst j))^2 - (shiftPlaneAsCharges g (evenSnd j))^2 := by
-  simp only [succ_eq_add_one, accCubeTriLinSymm, PureU1Charges_numberCharges,
-    TriLinearSymm.mk₃_toFun_apply_apply]
-  rw [sum_even]
-  simp only [Function.comp_apply]
-  rw [Finset.sum_eq_single j, symmBasisAsCharges_on_evenFst_self,
-    symmBasisAsCharges_on_evenSnd_self]
-  · simp only [mul_one, mul_neg]
-    ring
-  · intro k _ hkj
-    erw [symmBasisAsCharges_on_evenFst_other hkj.symm,
-      symmBasisAsCharges_on_evenSnd_other hkj.symm]
-    simp only [mul_zero, add_zero]
-  · simp
 
 end VectorLikeEvenPlane
 
