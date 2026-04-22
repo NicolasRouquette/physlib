@@ -117,6 +117,19 @@ lemma mem_iff_transpose_mul_minkowskiMatrix_mul_self
       _ = η * η := by rw [h]
       _ = 1 := by rw [minkowskiMatrix.sq]
 
+attribute [-simp] Fintype.sum_sum_type in
+lemma mem_iff_forall_components_eq_sum (Λ : Matrix (Fin 1 ⊕ Fin d) (Fin 1 ⊕ Fin d) ℝ) :
+    Λ ∈ LorentzGroup d ↔ ∀ μ ν, η μ ν =
+    ∑ κ, ∑ ω, Λ ω μ * η ω κ * Λ κ ν := by
+  rw [mem_iff_transpose_mul_minkowskiMatrix_mul_self]
+  constructor
+  · intro h μ ν
+    conv_lhs => rw [← h]
+    simp [Matrix.mul_apply, Finset.sum_mul]
+  · intro h
+    ext μ ν
+    simpa [Matrix.mul_apply, Finset.sum_mul] using (h μ ν).symm
+
 end LorentzGroup
 
 /-!

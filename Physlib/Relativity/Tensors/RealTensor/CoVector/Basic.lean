@@ -127,6 +127,25 @@ lemma apply_add {d : ℕ} (v w : CoVector d) (i : Fin 1 ⊕ Fin d) :
 lemma apply_sub {d : ℕ} (v w : CoVector d) (i : Fin 1 ⊕ Fin d) :
     (v - w) i = v i - w i := by rfl
 
+lemma apply_sum {d : ℕ} {ι : Type} [Fintype ι] (f : ι → CoVector d) (i : Fin 1 ⊕ Fin d) :
+    (∑ j, f j) i = ∑ j, f j i := by
+  let P (ι : Type) [Fintype ι] := ∀ (f : ι → CoVector d) (i : Fin 1 ⊕ Fin d),
+    (∑ j : ι, f j) i = ∑ j, f j i
+  revert i f
+  change P ι
+  apply Fintype.induction_empty_option
+  · intro ι1 ι2 _ e h1
+    dsimp [P]
+    intro f i
+    have h' := h1 (f ∘ e) i
+    simp at h'
+    rw [← @e.sum_comp, ← @e.sum_comp, h']
+  · intro f i
+    simp only [Finset.univ_eq_empty, Finset.sum_empty]
+    rfl
+  · intro ι _ h f i
+    rw [Fintype.sum_option, apply_add, h, Fintype.sum_option]
+
 @[simp]
 lemma neg_apply {d : ℕ} (v : CoVector d) (i : Fin 1 ⊕ Fin d) :
     (-v) i = - v i := rfl
