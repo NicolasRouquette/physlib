@@ -27,6 +27,7 @@ public import Physlib.Electromagnetism.Basic
 public import Physlib.Electromagnetism.Charge.ChargeUnit
 public import Physlib.Electromagnetism.Current.CircularCoil
 public import Physlib.Electromagnetism.Current.InfiniteWire
+public import Physlib.Electromagnetism.Distributional.Basic
 public import Physlib.Electromagnetism.Dynamics.Basic
 public import Physlib.Electromagnetism.Dynamics.CurrentDensity
 public import Physlib.Electromagnetism.Dynamics.Hamiltonian
