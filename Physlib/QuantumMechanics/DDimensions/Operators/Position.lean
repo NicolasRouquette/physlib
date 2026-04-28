@@ -53,6 +53,8 @@ Notation:
 
 @[expose] public section
 
+open Physlib
+
 namespace QuantumMechanics
 
 variable {d : ℕ} (i : Fin d)

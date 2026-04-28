@@ -57,11 +57,14 @@ to get a Schwartz Map on `Space d`.
 -/
 
 @[expose] public section
+
 open SchwartzMap NNReal
 noncomputable section
 
 variable (𝕜 : Type) {E F F' : Type} [RCLike 𝕜] [NormedAddCommGroup E] [NormedAddCommGroup F]
   [NormedAddCommGroup F'] [NormedSpace ℝ E] [NormedSpace ℝ F]
+
+open Physlib
 
 namespace Space
 
