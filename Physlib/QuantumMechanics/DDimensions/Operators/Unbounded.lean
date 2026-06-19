@@ -185,6 +185,26 @@ lemma pow_hasDenseDomain_of_le
     {n : ℕ} (h : (T ^ n).HasDenseDomain) {k : ℕ} (hle : k ≤ n) : (T ^ k).HasDenseDomain :=
   h.mono <| pow_sub_mul_pow T hle ▸ compRestricted_domain_le _ _
 
+/-- `U.rangeᗮ = U†.ker`
+
+  c.f. `LinearMap.orthogonal_range` and `ContinuousLinearMap.orthogonal_range` -/
+lemma HasDenseDomain.orthogonal_range [CompleteSpace H] (h : U.HasDenseDomain) :
+    U.toFun.rangeᗮ = U†.toFun.ker.map U†.domain.subtype := by
+  ext u
+  simp only [mem_orthogonal', Subtype.exists, mem_map, LinearMap.mem_ker, subtype_apply,
+    exists_and_right, exists_eq_right, toFun_eq_coe]
+  constructor
+  · intro h'
+    exact ⟨mem_adjoint_domain_of_exists u ⟨0, by simp [h']⟩, adjoint_apply_eq h _ (by simp [h'])⟩
+  · intro ⟨hu, hu'⟩ v ⟨x, hxv⟩
+    simp [← hxv, ← adjoint_isFormalAdjoint h ⟨u, hu⟩, hu']
+
+/-- `U†.kerᗮ = U.range.closure` -/
+lemma HasDenseDomain.orthogonal_adjoint_ker [CompleteSpace H] [CompleteSpace H']
+    (h : U.HasDenseDomain) :
+    (U†.toFun.ker.map U†.domain.subtype)ᗮ = U.toFun.range.closure :=
+  h.orthogonal_range ▸ orthogonal_orthogonal_eq_closure _
+
 /-!
 ### B.2. Closability
 -/
@@ -289,6 +309,9 @@ lemma adjoint_of_zero [CompleteSpace H] (h_zero : ⇑U = 0) : U† = 0 := by
     · exact adjoint_apply_of_not_dense h x
 
 @[simp]
+lemma adjoint_zero [CompleteSpace H] : (0 : H →ₗ.[ℂ] H')† = 0 := adjoint_of_zero rfl
+
+@[simp]
 lemma adjoint_smul [CompleteSpace H] (U : H →ₗ.[ℂ] H') {c : ℂ} (hc : c ≠ 0) :
     (c • U)† = conj c • U† := by
   refine dExt ?_ fun x y hxy ↦ ?_
@@ -339,6 +362,11 @@ lemma adjoint_add_le_add_adjoint [CompleteSpace H]
     simp only [add_apply, inner_add_left, inner_add_right, ← huv,
       adjoint_isFormalAdjoint h₁ ⟨u, u.2.1⟩ ⟨w, w.2.1⟩,
       adjoint_isFormalAdjoint h₂ ⟨u, u.2.2⟩ ⟨w, w.2.2⟩]
+
+lemma adjoint_sub_le_sub_adjoint [CompleteSpace H]
+    (U₁ U₂ : H →ₗ.[ℂ] H') (h₁₂ : (U₁ - U₂).HasDenseDomain) : U₁† - U₂† ≤ (U₁ - U₂)† := by
+  simp only [sub_eq_add_neg, ← adjoint_neg]
+  exact adjoint_add_le_add_adjoint U₁ (-U₂) h₁₂
 
 lemma adjoint_compRestricted_le_compRestricted_adjoint [CompleteSpace H] [CompleteSpace H']
     (hV : V.HasDenseDomain) (hVU : (V ∘ᵣ U).HasDenseDomain) : U† ∘ᵣ V† ≤ (V ∘ᵣ U)† := by
@@ -786,6 +814,16 @@ lemma IsUnbounded.le_adjoint_adjoint [CompleteSpace H] [CompleteSpace H'] (h : U
 lemma IsUnbounded.isClosed_iff [CompleteSpace H] [CompleteSpace H'] (h : U.IsUnbounded) :
     U.IsClosed ↔ U†† = U :=
   h.adjoint_adjoint_eq_closure ▸ h.2.isClosed_iff
+
+/-- `U†.rangeᗮ = U.closure.ker` -/
+lemma IsUnbounded.orthogonal_adjoint_range [CompleteSpace H] [CompleteSpace H']
+    (h : U.IsUnbounded) : U†.toFun.rangeᗮ = U.closure.toFun.ker.map U.closure.domain.subtype :=
+  h.adjoint_adjoint_eq_closure ▸ h.adjoint.hasDenseDomain.orthogonal_range
+
+/-- `U.closure.kerᗮ = U†.range` -/
+lemma IsUnbounded.orthogonal_closure_ker [CompleteSpace H] [CompleteSpace H'] (h : U.IsUnbounded) :
+    (U.closure.toFun.ker.map U.closure.domain.subtype)ᗮ = U†.toFun.range.closure :=
+  h.adjoint_adjoint_eq_closure ▸ h.adjoint.hasDenseDomain.orthogonal_adjoint_ker
 
 /-- A LinearPMap constructed from a symmetric LinearMap with dense domain
   is an unbounded operator. -/
