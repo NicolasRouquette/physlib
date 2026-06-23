@@ -63,7 +63,6 @@ QuantumInfo/ForMathlib/SionMinimax.lean
 QuantumInfo/ForMathlib/Superadditive.lean
 QuantumInfo/ForMathlib/Tactic/Commutes.lean
 QuantumInfo/ForMathlib/Tactic/Commutes/Attribute.lean
-QuantumInfo/ForMathlib/ULift.lean
 QuantumInfo/ForMathlib/Unitary.lean
 QuantumInfo/Measurements/POVM.lean
 QuantumInfo/Operators/Unitary.lean
