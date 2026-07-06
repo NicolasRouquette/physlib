@@ -95,7 +95,8 @@ public import Physlib.Mathematics.InnerProductSpace.Adjoint
 public import Physlib.Mathematics.InnerProductSpace.Basic
 public import Physlib.Mathematics.InnerProductSpace.Calculus
 public import Physlib.Mathematics.InnerProductSpace.Submodule
-public import Physlib.Mathematics.KroneckerDelta
+public import Physlib.Mathematics.KroneckerDelta.Basic
+public import Physlib.Mathematics.KroneckerDelta.Contraction
 public import Physlib.Mathematics.LinearMaps
 public import Physlib.Mathematics.LinearPMap
 public import Physlib.Mathematics.List
@@ -374,6 +375,7 @@ public import Physlib.Relativity.Tensors.Dual
 public import Physlib.Relativity.Tensors.Elab
 public import Physlib.Relativity.Tensors.Evaluation
 public import Physlib.Relativity.Tensors.LeviCivita.Basic
+public import Physlib.Relativity.Tensors.LeviCivita.Contractions
 public import Physlib.Relativity.Tensors.MetricTensor
 public import Physlib.Relativity.Tensors.OfInt
 public import Physlib.Relativity.Tensors.Product
