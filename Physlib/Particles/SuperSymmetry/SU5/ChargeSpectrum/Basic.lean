@@ -187,7 +187,9 @@ lemma _root_.Option.toFinset_inj {x y : Option 𝓩} :
   cases x <;> cases y <;> simp [Option.toFinset]
 
 lemma subset_trans {x y z : ChargeSpectrum 𝓩} (hxy : x ⊆ y) (hyz : y ⊆ z) : x ⊆ z := by
-  simp_all [Subset]
+  rw [subset_def] at hxy hyz ⊢
+  exact ⟨Finset.Subset.trans hxy.1 hyz.1, Finset.Subset.trans hxy.2.1 hyz.2.1,
+    Finset.Subset.trans hxy.2.2.1 hyz.2.2.1, Finset.Subset.trans hxy.2.2.2 hyz.2.2.2⟩
 
 lemma subset_antisymm {x y : ChargeSpectrum 𝓩} (hxy : x ⊆ y) (hyx : y ⊆ x) : x = y :=
   eq_of_parts

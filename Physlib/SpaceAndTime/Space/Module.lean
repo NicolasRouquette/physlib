@@ -198,17 +198,16 @@ noncomputable instance {d} : AddCommGroup (Space d) where
     simp
   zsmul_zero' p := by
     ext i
+    show ((0 : ℤ) : ℝ) * p.val i = 0
     simp
   zsmul_succ' n p := by
     ext i
-    simp only [Nat.succ_eq_add_one, Nat.cast_add, Nat.cast_one, Int.cast_add, Int.cast_natCast,
-      Int.cast_one, add_apply]
-    ring
+    show (((n : ℤ) + 1 : ℤ) : ℝ) * p.val i = ((n : ℤ) : ℝ) * p.val i + p.val i
+    push_cast; ring
   zsmul_neg' n p := by
     ext i
-    simp only [Int.cast_negSucc, Nat.cast_add, Nat.cast_one, neg_add_rev, Nat.succ_eq_add_one,
-      Int.cast_add, Int.cast_natCast, Int.cast_one, neg_apply]
-    ring
+    show ((Int.negSucc n : ℤ) : ℝ) * p.val i = -((((n : ℤ) + 1 : ℤ) : ℝ) * p.val i)
+    push_cast; ring
 
 @[simp]
 lemma sub_apply {d} (p q : Space d) (i : Fin d) :
