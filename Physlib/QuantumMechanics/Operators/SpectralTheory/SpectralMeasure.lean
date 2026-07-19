@@ -76,7 +76,7 @@ instance instCoeVectorMeasure : Coe (SpectralMeasure α H) (VectorMeasure α (H 
   ⟨toVectorMeasure⟩
 
 instance instCoeFun : CoeFun (SpectralMeasure α H) fun _ ↦ Set α → H →L[ℂ] H :=
-  ⟨fun μS ↦ μS.toVectorMeasure.measureOf'⟩
+  ⟨fun μS ↦ ⇑μS.toVectorMeasure⟩
 
 lemma isStarProjection (A : Set α) : IsStarProjection (μS A) := μS.isStarProjection' A
 
@@ -93,24 +93,16 @@ lemma comp_self (A : Set α) : μS A ∘L μS A = μS A := (μS.isStarProjection
 lemma comp_of_disjoint
     {A B : Set α} (h : Disjoint A B) (hA : MeasurableSet A) (hB : MeasurableSet B) :
     μS A ∘L μS B = 0 := by
-  have hU : μS (A ∪ B) = μS A + μS B := μS.of_union h hA hB
-  suffices hs : μS A ∘L μS (A ∪ B) = μS A by
-    rw [hU, comp_add, comp_self] at hs
-    exact add_left_cancel (hs.trans (add_zero (μS A)).symm)
+  suffices μS A ∘L μS (A ∪ B) = μS A by simp_all [μS.of_union]
   refine (IsStarProjection.sub_iff_mul_eq_left (μS.isStarProjection A)
     (μS.isStarProjection (A ∪ B))).mp ?_
-  rw [hU, show μS A + μS B - μS A = μS B by abel]
-  exact μS.isStarProjection B
+  simpa [μS.of_union h hA hB] using μS.isStarProjection B
 
 lemma comp_eq_of_inter {A B : Set α} (hA : MeasurableSet A) (hB : MeasurableSet B) :
     μS A ∘L μS B = μS (A ∩ B) := by
   nth_rw 1 [← inter_union_sdiff B A, ← inter_union_sdiff A B]
-  have hU1 : μS (A ∩ B ∪ A \ B) = μS (A ∩ B) + μS (A \ B) :=
-    μS.of_union disjoint_sdiff_inter.symm (hA.inter hB) (hA.diff hB)
-  have hU2 : μS (B ∩ A ∪ B \ A) = μS (B ∩ A) + μS (B \ A) :=
-    μS.of_union disjoint_sdiff_inter.symm (hB.inter hA) (hB.diff hA)
-  rw [hU1, hU2]
-  simp only [add_comp, comp_add]
+  simp only [μS.of_union, hA.inter hB, hB.inter hA, hA.diff hB, hB.diff hA,
+    disjoint_sdiff_inter.symm, add_comp, comp_add]
   rw [inter_comm B A, μS.comp_of_disjoint disjoint_sdiff_inter (hA.diff hB) (hA.inter hB),
     inter_comm A B, μS.comp_of_disjoint disjoint_sdiff_inter.symm (hB.inter hA) (hB.diff hA)]
   simp [μS.comp_of_disjoint disjoint_sdiff_sdiff (hA.diff hB) (hB.diff hA)]
@@ -118,11 +110,7 @@ lemma comp_eq_of_inter {A B : Set α} (hA : MeasurableSet A) (hB : MeasurableSet
 lemma commute (A B : Set α) : Commute (μS A) (μS B) := by
   by_cases hAB : MeasurableSet A ∧ MeasurableSet B
   · simp [commute_iff_eq, mul_def, comp_eq_of_inter, hAB, inter_comm]
-  · rcases not_and_or.mp hAB with hA | hB
-    · have h0 : μS A = 0 := μS.not_measurable hA
-      rw [h0]; exact Commute.zero_left _
-    · have h0 : μS B = 0 := μS.not_measurable hB
-      rw [h0]; exact Commute.zero_right _
+  · rcases not_and_or.mp hAB with hA | hB <;> simp [*]
 
 end SpectralMeasure
 
