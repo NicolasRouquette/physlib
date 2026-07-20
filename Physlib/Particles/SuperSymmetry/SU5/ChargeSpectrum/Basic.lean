@@ -330,6 +330,9 @@ lemma powerset_mono {x y : ChargeSpectrum 𝓩} :
   · intro h z hz
     exact mem_powerset_iff_subset.mpr (subset_trans (mem_powerset_iff_subset.mp hz) h)
 
+-- `unusedArguments` (newly flagged under v4.32.0): `hn` names the induction
+-- target but the proof discharges it directly via `exists_min_image`.
+@[nolint unusedArguments]
 lemma min_exists_inductive (S : Finset (ChargeSpectrum 𝓩)) (hS : S ≠ ∅) :
     (n : ℕ) → (hn : S.card = n) →
     ∃ y ∈ S, powerset y ∩ S = {y} := by
