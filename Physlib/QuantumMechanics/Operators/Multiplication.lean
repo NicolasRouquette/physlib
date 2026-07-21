@@ -34,7 +34,11 @@ In this module we introduce unbounded operators defined by multiplication by a f
 - C. Adjoint
   - C.1. Self-adjoint
 - D. Closable & unbounded
-- E. Composition
+- E. Structural properties
+  - E.1. Smul & neg
+  - E.2. Add & sub
+  - E.3. Composition
+- F. Spectrum
 
 ## iv. References
 
@@ -100,7 +104,7 @@ lemma mem_mulOperator_domain_iff
   Iff.rfl
 
 lemma mulOperator_apply_ae {μ : Measure (Space d)} {f : Space d → ℂ} (ψ : (𝓜 μ f).domain) :
-    (𝓜 μ f) ψ =ᵐ[μ] f • ψ :=
+    𝓜 μ f ψ =ᵐ[μ] f • ψ :=
   coeFn_mk ψ.prop
 
 /-!
@@ -326,7 +330,84 @@ lemma mulOperator_isUnbounded {μ : Measure (Space d)} [IsFiniteMeasureOnCompact
   ⟨mulOperator_hasDenseDomain hf, mulOperator_isClosable hf⟩
 
 /-!
-## E. Composition
+## E. Structural properties
+-/
+
+/-!
+### E.1. Smul & neg
+-/
+
+lemma mulOperator_smul_ge (μ : Measure (Space d)) (c : ℂ) (f : Space d → ℂ) :
+    c • 𝓜 μ f ≤ 𝓜 μ (c • f) := by
+  refine le_of_le_graph fun u h ↦ ?_
+  rw [mem_graph_iff] at *
+  obtain ⟨⟨v, hv⟩, hvu, hvu'⟩ := h
+  have hv' : v ∈ (𝓜 μ (c • f)).domain := by
+    rw [smul_domain, mem_mulOperator_domain_iff] at *
+    simpa using hv.const_smul c
+  refine ⟨⟨v, hv'⟩, hvu, ?_⟩
+  rw [← hvu', ext_iff]
+  filter_upwards [mulOperator_apply_ae ⟨v, hv⟩, mulOperator_apply_ae ⟨v, hv'⟩,
+    coeFn_smul c (𝓜 μ f ⟨v, hv⟩)]
+  simp_all [mul_assoc]
+
+@[simp]
+lemma mulOperator_smul_eq (μ : Measure (Space d)) {c : ℂ} (hc : c ≠ 0) (f : Space d → ℂ) :
+    𝓜 μ (c • f) = c • 𝓜 μ f := by
+  refine (eq_of_le_of_domain_eq (mulOperator_smul_ge μ c f) ?_).symm
+  ext
+  simp [mem_mulOperator_domain_iff, MemHS.const_smul_iff hc]
+
+@[simp]
+lemma mulOperator_neg (μ : Measure (Space d)) (f : Space d → ℂ) : 𝓜 μ (-f) = -𝓜 μ f := by
+  rw [← neg_one_smul ℂ f, mulOperator_smul_eq _ (by norm_num), neg_eq_neg_one_smul]
+
+/-!
+### E.2. Add & sub
+-/
+
+lemma mulOperator_add_ge (μ : Measure (Space d)) (f g : Space d → ℂ) :
+    𝓜 μ f + 𝓜 μ g ≤ 𝓜 μ (f + g) := by
+  refine le_of_le_graph fun u h ↦ ?_
+  rw [mem_graph_iff] at *
+  obtain ⟨⟨v, hv⟩, hvu, hvu'⟩ := h
+  have hv' : v ∈ (𝓜 μ (f + g)).domain := by
+    rw [add_domain, Submodule.mem_inf] at hv
+    simpa [add_mul, mem_mulOperator_domain_iff] using hv.1.add hv.2
+  refine ⟨⟨v, hv'⟩, hvu, ?_⟩
+  rw [← hvu', ext_iff]
+  change _ =ᵐ[μ] 𝓜 μ f ⟨v, hv.1⟩ + 𝓜 μ g ⟨v, hv.2⟩
+  filter_upwards [mulOperator_apply_ae ⟨v, hv.1⟩, mulOperator_apply_ae ⟨v, hv.2⟩,
+    mulOperator_apply_ae ⟨v, hv'⟩, coeFn_add (𝓜 μ f ⟨v, hv.1⟩) (𝓜 μ g ⟨v, hv.2⟩)]
+  simp_all [add_mul]
+
+@[simp]
+lemma mulOperator_add_eq
+    {μ : Measure (Space d)} (f : Space d → ℂ) {g : Space d → ℂ} (h : (𝓜 μ g).domain = ⊤) :
+    𝓜 μ (f + g) = 𝓜 μ f + 𝓜 μ g := by
+  have hle := mulOperator_add_ge μ f g
+  refine (eq_of_le_of_domain_eq hle ?_).symm
+  refine eq_of_le_of_ge hle.1 fun ψ hψ ↦ ?_
+  have hg : ψ ∈ (𝓜 μ g).domain := by simp [h]
+  simp only [add_domain, Submodule.mem_inf, mem_mulOperator_domain_iff] at *
+  exact ⟨by simpa [add_mul] using hψ.sub hg, hg⟩
+
+lemma mulOperator_sub_ge (μ : Measure (Space d)) (f g : Space d → ℂ) :
+    𝓜 μ f - 𝓜 μ g ≤ 𝓜 μ (f - g) :=
+  le_of_eq_of_le (by simp [sub_eq_add_neg]) (mulOperator_add_ge μ f (-g))
+
+@[simp]
+lemma mulOperator_sub_eq
+    {μ : Measure (Space d)} (f : Space d → ℂ) {g : Space d → ℂ} (h : (𝓜 μ g).domain = ⊤) :
+    𝓜 μ (f - g) = 𝓜 μ f - 𝓜 μ g := by
+  simp [sub_eq_add_neg, mulOperator_add_eq, h]
+
+TODO "`mulOperator_add_eq` has the strong assumption `(𝓜 μ g).domain = ⊤`. Weaken this assumption
+  and/or find other sufficient conditions to ensure the equality `𝓜 μ (f + g) = 𝓜 μ f + 𝓜 μ g`.
+  For example, `f • g ≥ᵐ[μ] 0` or `|f| ≤ᵐ[μ] c • |g|` (with no assumptions on the domains)?"
+
+/-!
+### E.3. Composition
 -/
 
 lemma mulOperator_compRestricted_le (μ : Measure (Space d)) (f g : Space d → ℂ) :
