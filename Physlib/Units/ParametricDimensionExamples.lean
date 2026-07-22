@@ -37,7 +37,7 @@ equality definitional, so a cast on a proven equality is the correct idiom.
 
 Because `Dimension` is parametric, the same dimensional algebra and the same
 `cast`-based comparison are available over *any* basis — not just the physical
-`PhyslibBase`. The unit-scaling layer (`UnitChoices`, `dimScale`) is not needed
+`LTMCTDimensionBase`. The unit-scaling layer (`UnitChoices`, `dimScale`) is not needed
 for either the algebra or the comparison, so neither is referenced here.
 
 This module is illustrative and should not be imported by other modules.
@@ -49,10 +49,6 @@ This module is illustrative and should not be imported by other modules.
 open Dimension
 
 namespace ParametricDimensionExamples
-
-/-!
-## Daniel Morrison's example on the standard basis
--/
 
 /-- The dimension equality `(length / time) · time = length` holds
 propositionally, by cancellation of the rational exponents. -/
@@ -73,7 +69,7 @@ example (x : WithDim L𝓭 ℝ) (v : WithDim (L𝓭 / T𝓭) ℝ) (t : WithDim T
 ## The same comparison over a non-standard basis
 
 A basis with two base dimensions of its own — `bit` and `symbol` — that
-`PhyslibBase` does not have. Nothing in the standard units system is involved.
+`LTMCTDimensionBase` does not have. Nothing in the standard units system is involved.
 -/
 
 /-- A basis of information-theoretic base dimensions. -/
@@ -85,6 +81,7 @@ inductive Info
 
 /-- The `bit` base dimension. -/
 def bitDim : Dimension Info := ⟨fun | .bit => 1 | .symbol => 0⟩
+
 /-- The `symbol` base dimension. -/
 def symbolDim : Dimension Info := ⟨fun | .bit => 0 | .symbol => 1⟩
 

@@ -17,7 +17,7 @@ The *algebraic* structure of `WithDim d M` (its additive, order, scalar-action,
 multiplication, division and casting instances) is available for every basis `B`.
 The *unit-scaling* structure (`HasDim`, `DMul`, and the `scaleUnit` lemmas), which
 routes through `UnitChoices.dimScale`, is provided for the standard basis
-`PhyslibBase`.
+`LTMCTDimensionBase`.
 
 -/
 
@@ -39,11 +39,11 @@ lemma ext {B : Type} {d : Dimension B} {M} (x1 x2 : WithDim d M) (h : x1.val = x
   cases x2
   simp_all
 
-instance (d : Dimension PhyslibBase) (M : Type) : HasDim (WithDim d M) where
+instance (d : Dimension LTMCTDimensionBase) (M : Type) : HasDim (WithDim d M) where
   d := d
 
 @[simp]
-lemma dim_apply (d : Dimension PhyslibBase) (M : Type) :
+lemma dim_apply (d : Dimension LTMCTDimensionBase) (M : Type) :
     dim (WithDim d M) = d := rfl
 
 /-!
@@ -177,7 +177,7 @@ lemma withDim_hMul_val {B : Type} {d1 d2 : Dimension B}
     (m1 : WithDim d1 ℝ) (m2 : WithDim d2 ℝ) :
     (m1 * m2).val = m1.val * m2.val := rfl
 
-instance {d1 d2 : Dimension PhyslibBase} :
+instance {d1 d2 : Dimension LTMCTDimensionBase} :
     DMul (WithDim d1 ℝ) (WithDim d2 ℝ) (WithDim (d1 * d2) ℝ) where
   mul_dim m1 m2 := by
     intro u1 u2
@@ -204,14 +204,14 @@ lemma val_pow_two_eq_mul {B : Type} {d1 : Dimension B} (m1 : WithDim d1 ℝ) :
   rfl
 
 @[simp]
-lemma scaleUnit_val_eq_scaleUnit_val {d : Dimension PhyslibBase} (M : Type) [MulAction ℝ≥0 M]
+lemma scaleUnit_val_eq_scaleUnit_val {d : Dimension LTMCTDimensionBase} (M : Type) [MulAction ℝ≥0 M]
     (u1 u2 : UnitChoices) (m1 m2 : WithDim d M) :
     (scaleUnit u1 u2 m1).val = (scaleUnit u1 u2 m2).val ↔ m1.val = m2.val := by
   rw [← WithDim.ext_iff]
   simp only [scaleUnit_injective]
   exact WithDim.ext_iff
 
-lemma scaleUnit_val_eq_scaleUnit_val_of_dim_eq {d1 d2 : Dimension PhyslibBase} {M : Type}
+lemma scaleUnit_val_eq_scaleUnit_val_of_dim_eq {d1 d2 : Dimension LTMCTDimensionBase} {M : Type}
     [MulAction ℝ≥0 M]
     {u1 u2 : UnitChoices} {m1 : WithDim d1 M} {m2 : WithDim d2 M}
     (h : d1 = d2 := by ext <;> {simp; try ring}) :
@@ -219,7 +219,7 @@ lemma scaleUnit_val_eq_scaleUnit_val_of_dim_eq {d1 d2 : Dimension PhyslibBase} {
   subst h
   simp
 
-lemma scaleUnit_val {d : Dimension PhyslibBase} (M : Type) [MulAction ℝ≥0 M]
+lemma scaleUnit_val {d : Dimension LTMCTDimensionBase} (M : Type) [MulAction ℝ≥0 M]
     (u1 u2 : UnitChoices) (m1 : WithDim d M) :
     (scaleUnit u1 u2 m1).val = u1.dimScale u2 d • m1.val := rfl
 
@@ -238,7 +238,7 @@ lemma val_div_val {B : Type} {d1 d2 : Dimension B} (m1 : WithDim d1 ℝ) (m2 : W
     (m1.val / m2.val) = (m1 / m2).val := rfl
 
 @[simp]
-lemma div_scaleUnit {d1 d2 : Dimension PhyslibBase} (m1 : WithDim d1 ℝ) (m2 : WithDim d2 ℝ)
+lemma div_scaleUnit {d1 d2 : Dimension LTMCTDimensionBase} (m1 : WithDim d1 ℝ) (m2 : WithDim d2 ℝ)
     (u1 u2 : UnitChoices) :
     (scaleUnit u1 u2 m1) / (scaleUnit u1 u2 m2) = scaleUnit u1 u2 (m1 / m2) := by
   symm
@@ -252,8 +252,9 @@ lemma div_scaleUnit {d1 d2 : Dimension PhyslibBase} (m1 : WithDim d1 ℝ) (m2 : 
   exact div_mul_div_comm (↑((u1.dimScale u2) d1)) (↑((u1.dimScale u2) d2)) m1.val m2.val
 
 @[simp]
-lemma scaleUnit_dim_eq_zero {d : Dimension PhyslibBase} (m : WithDim d ℝ) (u1 u2 : UnitChoices)
-    (h : d = 1 := by ext <;> {simp; try ring}) : scaleUnit u1 u2 m = m := by
+lemma scaleUnit_dim_eq_zero {d : Dimension LTMCTDimensionBase} (m : WithDim d ℝ)
+    (u1 u2 : UnitChoices) (h : d = 1 := by ext <;> {simp; try ring}) :
+    scaleUnit u1 u2 m = m := by
   subst h
   ext
   rw [scaleUnit_val]
@@ -274,7 +275,7 @@ lemma cast_refl {B : Type} {d : Dimension B} {M : Type} (m : WithDim d M) :
     cast m rfl = m := rfl
 
 @[simp]
-lemma cast_scaleUnit {d d2 : Dimension PhyslibBase} {M : Type} [MulAction ℝ≥0 M]
+lemma cast_scaleUnit {d d2 : Dimension LTMCTDimensionBase} {M : Type} [MulAction ℝ≥0 M]
     (m : WithDim d M)
     (h : d = d2) (u1 u2 : UnitChoices) :
     cast (scaleUnit u1 u2 m) h = scaleUnit u1 u2 (cast m h) := by

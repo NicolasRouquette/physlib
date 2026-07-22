@@ -15,21 +15,19 @@ In this module we define the type `Dimension` which carries the dimension
 of a physical quantity.
 
 A `Dimension B` is parameterised by a *basis* `B` of base dimensions: it assigns a
-rational `exponent` to each base dimension `b : B`. PhysLib's default basis is
-`PhyslibBase`, whose five base dimensions are length, time, mass, charge and
-temperature; `Dimension PhyslibBase` recovers the familiar five-exponent dimension,
-and its `length`, `time`, `mass`, `charge` and `temperature` projections are
-provided so that existing code is unaffected. Note that this basis is *charge*-based
-and has five generators, so it is **not** the SI/ISQ base-quantity set (which takes
-electric current as base and adds amount of substance and luminous intensity). The
-ISQ, Gaussian–CGS, natural-unit, and angle-augmented systems are other
-instantiations `Dimension B` for a different basis `B`.
+rational `exponent` to each base dimension `b : B`. The parameterisation is purely in
+the dimensional *algebra*: `Dimension B` is a `CommGroup` for every `B`
+(multiplication adds exponents, inversion negates them), so quantities can be typed by
+dimensions over any basis. The commutative-group and `ℚ`-power structure, decidable
+equality (`DecidableEq`), the base vectors `single b`, and the change-of-basis map
+`extend` are all generic in `B`.
 
-The parameterisation is purely in the dimensional *algebra*: `Dimension B` is a
-`CommGroup` for every `B` (multiplication adds exponents, inversion negates them),
-so quantities can be typed by dimensions over any basis. The commutative-group and
-`ℚ`-power structure, decidable equality (`DecidableEq`), and the base vectors
-`single b` are all generic in `B`.
+PhysLib's default basis is `LTMCTDimensionBase` — length, time, mass, charge,
+temperature — whose projections and named generators (`L𝓭`, `T𝓭`, …) live in
+`Physlib.Units.LTMCTDimensionBase`. It is *charge*-based with five generators, so it
+is **not** the SI/ISQ base-quantity set; the ISQ set is `ISQDimensionBase`, and other
+systems (Gaussian–CGS, natural units, …) are equally expressible as `Dimension B` for
+a suitable basis `B`.
 
 -/
 
@@ -39,34 +37,12 @@ open NNReal
 
 /-!
 
-## The PhysLib base
-
--/
-
-/-- PhysLib's default basis of base dimensions — `length`, `time`, `mass`,
-  `charge`, `temperature`. Note this is *charge*-based, so it is not the SI/ISQ
-  base-quantity set; see `Dimension`. -/
-inductive PhyslibBase where
-  /-- The length base dimension. -/
-  | length
-  /-- The time base dimension. -/
-  | time
-  /-- The mass base dimension. -/
-  | mass
-  /-- The charge base dimension. -/
-  | charge
-  /-- The temperature base dimension. -/
-  | temperature
-deriving DecidableEq, Fintype
-
-/-!
-
 ## Defining dimensions
 
 -/
 
 /-- A dimension over a basis `B` of base dimensions: a rational `exponent` for each
-  base dimension `b : B`. PhysLib's default basis is `PhyslibBase`. -/
+  base dimension `b : B`. PhysLib's default basis is `LTMCTDimensionBase`. -/
 structure Dimension (B : Type) where
   /-- The exponent of each base dimension. -/
   exponent : B → ℚ
@@ -168,207 +144,69 @@ lemma extend_exponent_apply {B' : Type} [Fintype B] [DecidableEq B'] {f : B → 
 
 /-!
 
-## The PhyslibBase projections
+## Dimension-preserving maps between bases
 
-The five base-dimension exponents of a `Dimension PhyslibBase`, provided so that
-the familiar `.length`, `.time`, `.mass`, `.charge`, `.temperature` API is available.
+A cross-basis map of dimensions is only admissible if it preserves the dimensional
+*algebra*. We record the two truth-preserving directions as bundled data:
 
--/
+* an `Embedding B B'` is an **injective** `MonoidHom (Dimension B) (Dimension B')` — a
+  faithful, dimension-preserving inclusion of one basis into another; and
+* a `Projection B' B` is a **surjective** `MonoidHom (Dimension B') (Dimension B)` — a
+  truth-preserving *reduction* of a richer basis onto a coarser one.
 
-/-- The length exponent of a `PhyslibBase` dimension. -/
-def length (d : Dimension PhyslibBase) : ℚ := d.exponent .length
-/-- The time exponent of a `PhyslibBase` dimension. -/
-def time (d : Dimension PhyslibBase) : ℚ := d.exponent .time
-/-- The mass exponent of a `PhyslibBase` dimension. -/
-def mass (d : Dimension PhyslibBase) : ℚ := d.exponent .mass
-/-- The charge exponent of a `PhyslibBase` dimension. -/
-def charge (d : Dimension PhyslibBase) : ℚ := d.exponent .charge
-/-- The temperature exponent of a `PhyslibBase` dimension. -/
-def temperature (d : Dimension PhyslibBase) : ℚ := d.exponent .temperature
-
-/-- Build a `PhyslibBase` dimension from its five exponents, in the order
-  `⟨length, time, mass, charge, temperature⟩`. -/
-def ofPhyslibBase (length time mass charge temperature : ℚ) : Dimension PhyslibBase :=
-  ⟨fun
-    | .length => length
-    | .time => time
-    | .mass => mass
-    | .charge => charge
-    | .temperature => temperature⟩
-
-@[simp]
-lemma ofPhyslibBase_length (l t m c θ : ℚ) : (ofPhyslibBase l t m c θ).length = l := rfl
-
-@[simp]
-lemma ofPhyslibBase_time (l t m c θ : ℚ) : (ofPhyslibBase l t m c θ).time = t := rfl
-
-@[simp]
-lemma ofPhyslibBase_mass (l t m c θ : ℚ) : (ofPhyslibBase l t m c θ).mass = m := rfl
-
-@[simp]
-lemma ofPhyslibBase_charge (l t m c θ : ℚ) : (ofPhyslibBase l t m c θ).charge = c := rfl
-
-@[simp]
-lemma ofPhyslibBase_temperature (l t m c θ : ℚ) : (ofPhyslibBase l t m c θ).temperature = θ := rfl
-
-@[simp]
-lemma time_mul (d1 d2 : Dimension PhyslibBase) :
-    (d1 * d2).time = d1.time + d2.time := rfl
-
-@[simp]
-lemma length_mul (d1 d2 : Dimension PhyslibBase) :
-    (d1 * d2).length = d1.length + d2.length := rfl
-
-@[simp]
-lemma mass_mul (d1 d2 : Dimension PhyslibBase) :
-    (d1 * d2).mass = d1.mass + d2.mass := rfl
-
-@[simp]
-lemma charge_mul (d1 d2 : Dimension PhyslibBase) :
-    (d1 * d2).charge = d1.charge + d2.charge := rfl
-
-@[simp]
-lemma temperature_mul (d1 d2 : Dimension PhyslibBase) :
-    (d1 * d2).temperature = d1.temperature + d2.temperature := rfl
-
-@[simp]
-lemma one_length : (1 : Dimension PhyslibBase).length = 0 := rfl
-@[simp]
-lemma one_time : (1 : Dimension PhyslibBase).time = 0 := rfl
-
-@[simp]
-lemma one_mass : (1 : Dimension PhyslibBase).mass = 0 := rfl
-
-@[simp]
-lemma one_charge : (1 : Dimension PhyslibBase).charge = 0 := rfl
-
-@[simp]
-lemma one_temperature : (1 : Dimension PhyslibBase).temperature = 0 := rfl
-
-@[simp]
-lemma inv_length (d : Dimension PhyslibBase) : d⁻¹.length = -d.length := rfl
-
-@[simp]
-lemma inv_time (d : Dimension PhyslibBase) : d⁻¹.time = -d.time := rfl
-
-@[simp]
-lemma inv_mass (d : Dimension PhyslibBase) : d⁻¹.mass = -d.mass := rfl
-
-@[simp]
-lemma inv_charge (d : Dimension PhyslibBase) : d⁻¹.charge = -d.charge := rfl
-
-@[simp]
-lemma inv_temperature (d : Dimension PhyslibBase) : d⁻¹.temperature = -d.temperature := rfl
-
-@[simp]
-lemma div_length (d1 d2 : Dimension PhyslibBase) : (d1 / d2).length = d1.length - d2.length := by
-  simp only [length, div_exponent]
-
-@[simp]
-lemma div_time (d1 d2 : Dimension PhyslibBase) : (d1 / d2).time = d1.time - d2.time := by
-  simp only [time, div_exponent]
-
-@[simp]
-lemma div_mass (d1 d2 : Dimension PhyslibBase) : (d1 / d2).mass = d1.mass - d2.mass := by
-  simp only [mass, div_exponent]
-
-@[simp]
-lemma div_charge (d1 d2 : Dimension PhyslibBase) : (d1 / d2).charge = d1.charge - d2.charge := by
-  simp only [charge, div_exponent]
-
-@[simp]
-lemma div_temperature (d1 d2 : Dimension PhyslibBase) :
-    (d1 / d2).temperature = d1.temperature - d2.temperature := by
-  simp only [temperature, div_exponent]
-
-@[simp]
-lemma npow_length (d : Dimension PhyslibBase) (n : ℕ) : (d ^ n).length = n • d.length := by
-  simp only [length, npow_exponent]
-
-@[simp]
-lemma npow_time (d : Dimension PhyslibBase) (n : ℕ) : (d ^ n).time = n • d.time := by
-  simp only [time, npow_exponent]
-
-@[simp]
-lemma npow_mass (d : Dimension PhyslibBase) (n : ℕ) : (d ^ n).mass = n • d.mass := by
-  simp only [mass, npow_exponent]
-
-@[simp]
-lemma npow_charge (d : Dimension PhyslibBase) (n : ℕ) : (d ^ n).charge = n • d.charge := by
-  simp only [charge, npow_exponent]
-
-@[simp]
-lemma npow_temperature (d : Dimension PhyslibBase) (n : ℕ) :
-    (d ^ n).temperature = n • d.temperature := by
-  simp only [temperature, npow_exponent]
-
-/-- The dimension corresponding to length. -/
-def L𝓭 : Dimension PhyslibBase := ofPhyslibBase 1 0 0 0 0
-
-@[simp]
-lemma L𝓭_length : L𝓭.length = 1 := by rfl
-
-@[simp]
-lemma L𝓭_time : L𝓭.time = 0 := by rfl
-
-@[simp]
-lemma L𝓭_mass : L𝓭.mass = 0 := by rfl
-
-@[simp]
-lemma L𝓭_charge : L𝓭.charge = 0 := by rfl
-
-@[simp]
-lemma L𝓭_temperature : L𝓭.temperature = 0 := by rfl
-
-/-- The dimension corresponding to time. -/
-def T𝓭 : Dimension PhyslibBase := ofPhyslibBase 0 1 0 0 0
-
-@[simp]
-lemma T𝓭_length : T𝓭.length = 0 := by rfl
-
-@[simp]
-lemma T𝓭_time : T𝓭.time = 1 := by rfl
-
-@[simp]
-lemma T𝓭_mass : T𝓭.mass = 0 := by rfl
-
-@[simp]
-lemma T𝓭_charge : T𝓭.charge = 0 := by rfl
-
-@[simp]
-lemma T𝓭_temperature : T𝓭.temperature = 0 := by rfl
-
-/-- The dimension corresponding to mass. -/
-def M𝓭 : Dimension PhyslibBase := ofPhyslibBase 0 0 1 0 0
-
-/-- The dimension corresponding to charge. -/
-def C𝓭 : Dimension PhyslibBase := ofPhyslibBase 0 0 0 1 0
-
-/-- The dimension corresponding to temperature. -/
-def Θ𝓭 : Dimension PhyslibBase := ofPhyslibBase 0 0 0 0 1
-
-/-!
-
-## The named generators are the base vectors
-
-Each named generator `L𝓭`, `T𝓭`, … is the generic `single` base vector at the
-corresponding base dimension, exhibiting them as instances of the basis-generic API.
+Being a `MonoidHom` is what makes either map dimension-preserving (it respects
+products, inverses and rational powers); the injectivity / surjectivity side condition
+distinguishes the two directions. Cross-basis dimension maps should be produced as one
+of these, so that dimension-preservation holds by construction — a bare relabelling
+that sends a base dimension to an inequivalent one is *not* expressible as either.
 
 -/
 
-lemma L𝓭_eq_single : L𝓭 = single .length := by
-  ext b; cases b <;> simp [L𝓭, ofPhyslibBase, single_exponent]
+/-- `extend f` packaged as a monoid homomorphism of dimensions. -/
+def extendHom {B' : Type} [Fintype B] [DecidableEq B'] (f : B → B') :
+    Dimension B →* Dimension B' where
+  toFun := extend f
+  map_one' := by ext b'; simp [extend]
+  map_mul' d1 d2 := by
+    ext b'
+    simp only [extend, mul_exponent]
+    rw [← Finset.sum_add_distrib]
+    refine Finset.sum_congr rfl fun b _ => ?_
+    split_ifs <;> simp
 
-lemma T𝓭_eq_single : T𝓭 = single .time := by
-  ext b; cases b <;> simp [T𝓭, ofPhyslibBase, single_exponent]
+/-- A **dimension embedding** `B ↪ B'`: an injective monoid homomorphism of
+  dimensions. As a `MonoidHom` it is dimension-preserving (it respects products,
+  inverses and rational powers); injectivity makes it a faithful inclusion of the basis
+  `B` into `B'`. Cross-basis dimension injections are produced as `Embedding`s so that
+  dimension-preservation holds by construction. -/
+structure Embedding (B B' : Type) where
+  /-- The underlying dimension-preserving homomorphism. -/
+  toHom : Dimension B →* Dimension B'
+  /-- The homomorphism is injective (a faithful embedding). -/
+  inj : Function.Injective toHom
 
-lemma M𝓭_eq_single : M𝓭 = single .mass := by
-  ext b; cases b <;> simp [M𝓭, ofPhyslibBase, single_exponent]
+/-- A **dimension projection** `B' ↠ B`: a surjective monoid homomorphism of
+  dimensions. As a `MonoidHom` it is truth-preserving, but it is lossy — it reduces a
+  richer basis `B'` onto a coarser basis `B`, collapsing the base dimensions that `B`
+  does not track. -/
+structure Projection (B' B : Type) where
+  /-- The underlying dimension-preserving homomorphism. -/
+  toHom : Dimension B' →* Dimension B
+  /-- The homomorphism is surjective (the reduction hits every dimension of `B`). -/
+  surj : Function.Surjective toHom
 
-lemma C𝓭_eq_single : C𝓭 = single .charge := by
-  ext b; cases b <;> simp [C𝓭, ofPhyslibBase, single_exponent]
-
-lemma Θ𝓭_eq_single : Θ𝓭 = single .temperature := by
-  ext b; cases b <;> simp [Θ𝓭, ofPhyslibBase, single_exponent]
+/-- An injective *basis* map `f : B → B'` induces a dimension embedding, via `extend`.
+  This is the label-level case: it sends each base dimension of `B` to a base dimension
+  of `B'`, so it is automatically dimension-preserving and faithful. -/
+def Embedding.ofBasis {B B' : Type} [Fintype B] [DecidableEq B']
+    (f : B → B') (hf : Function.Injective f) : Embedding B B' where
+  toHom := extendHom f
+  inj := by
+    intro d1 d2 h
+    ext b
+    have h2 : (extendHom f d1).exponent (f b) = (extendHom f d2).exponent (f b) := by
+      rw [h]
+    simpa only [extendHom, MonoidHom.coe_mk, OneHom.coe_mk, extend_exponent_apply hf]
+      using h2
 
 end Dimension

@@ -24,7 +24,7 @@ scaling homomorphism folds the per-base unit ratio over `B`:
 * `UnitScale.dimScale : UnitScale B → UnitScale B → Dimension B →* ℝ≥0` — the
   `MonoidHom` `d ↦ ∏ b, (u₁ b / u₂ b) ^ d.exponent b`, generic in `B`.
 
-The current five-field `UnitChoices.dimScale` is the `PhyslibBase` instance of this
+The current five-field `UnitChoices.dimScale` is the `LTMCTDimensionBase` instance of this
 fold, written out by hand; `UnitChoices.toScale` exhibits the correspondence.
 
 -/
@@ -85,17 +85,17 @@ lemma dimScale_transitive [Fintype B] (u1 u2 u3 : UnitScale B) (d : Dimension B)
 end UnitScale
 
 /-!
-## The current five-field `UnitChoices` is the `PhyslibBase` instance
+## The current five-field `UnitChoices` is the `LTMCTDimensionBase` instance
 
-`UnitChoices.toScale` reads the five typed units as a `UnitScale PhyslibBase`,
-exhibiting the existing bespoke `dimScale` as the `PhyslibBase` case of the generic
+`UnitChoices.toScale` reads the five typed units as a `UnitScale LTMCTDimensionBase`,
+exhibiting the existing bespoke `dimScale` as the `LTMCTDimensionBase` case of the generic
 fold.
 -/
 
 namespace UnitChoices
 
-/-- Read a five-field `UnitChoices` as a `UnitScale` over `PhyslibBase`. -/
-noncomputable def toScale (u : UnitChoices) : UnitScale PhyslibBase where
+/-- Read a five-field `UnitChoices` as a `UnitScale` over `LTMCTDimensionBase`. -/
+noncomputable def toScale (u : UnitChoices) : UnitScale LTMCTDimensionBase where
   scale
     | .length => ⟨u.length.val, u.length.val_pos.le⟩
     | .time => ⟨u.time.val, u.time.val_pos.le⟩
