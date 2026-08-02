@@ -525,6 +525,7 @@ public import Physlib.Units.LTMCTDimensionBase
 public import Physlib.Units.ParametricDimensionExamples
 public import Physlib.Units.ParametricUnits
 public import Physlib.Units.UnitDependent
+public import Physlib.Units.UnitSystem
 public import Physlib.Units.WithDim.Area
 public import Physlib.Units.WithDim.Basic
 public import Physlib.Units.WithDim.Energy

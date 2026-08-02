@@ -36,6 +36,7 @@ open scoped BigOperators
 
 /-- A choice of unit for each base dimension of `B`: a positive-real magnitude per
   base. This is the basis-generic form of `UnitChoices`. -/
+@[ext]
 structure UnitScale (B : Type) where
   /-- The positive-real magnitude of the chosen unit at each base dimension. -/
   scale : B → ℝ≥0
