@@ -197,7 +197,8 @@ lemma LTMCTUnitChoices.scaleUnit_apply_fst (u1 u2 : LTMCTUnitChoices) :
     ChargeUnit.div_eq_val, TemperatureUnit.div_eq_val, toReal]
 
 @[simp]
-lemma LTMCTUnitChoices.dimScale_scaleUnit {u1 u2 u : LTMCTUnitChoices} (d : Dimension LTMCTDimensionBase) :
+lemma LTMCTUnitChoices.dimScale_scaleUnit {u1 u2 u : LTMCTUnitChoices}
+    (d : Dimension LTMCTDimensionBase) :
     u.dimScale (scaleUnit u1 u2 u) d = u1.dimScale u2 d := by
   simp [dimScale, scaleUnit]
   simp [LengthUnit.div_eq_val, TimeUnit.div_eq_val, MassUnit.div_eq_val, ChargeUnit.div_eq_val,

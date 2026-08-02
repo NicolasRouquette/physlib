@@ -316,7 +316,8 @@ lemma hasDimension_iff {M : Type} [CarriesDimension M] (f : LTMCTUnitChoices →
   which `HasDimension`. -/
 def Dimensionful (M : Type) [CarriesDimension M] := Subtype (HasDimension (M := M))
 
-instance {M : Type} [CarriesDimension M] : CoeFun (Dimensionful M) (fun _ => LTMCTUnitChoices → M) where
+instance {M : Type} [CarriesDimension M] :
+    CoeFun (Dimensionful M) (fun _ => LTMCTUnitChoices → M) where
   coe := Subtype.val
 
 @[ext]
