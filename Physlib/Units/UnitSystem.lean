@@ -13,7 +13,7 @@ public import Physlib.Units.ParametricUnits
 `Dimension B` is basis-generic and `ParametricUnits` gives the basis-generic *magnitude*
 layer `UnitScale B` (a positive real per base dimension, with the scaling homomorphism
 `UnitScale.dimScale` proved once via `Finset.prod`). What was still hardwired to the
-default basis is the *typed* unit side: `UnitChoices` is a bespoke five-field record with
+default basis is the *typed* unit side: `LTMCTUnitChoices` is a bespoke five-field record with
 one named unit type per base dimension (`LengthUnit`, `TimeUnit`, …).
 
 This module provides the generic typed layer. A `UnitSystem B` attaches to a basis `B` a
@@ -26,7 +26,7 @@ magnitude:
   magnitude layer already provided by `ParametricUnits`.
 
 The `LTMCTDimensionBase` instance recovers exactly today's typed unit names, and
-`UnitChoices ≃ TypedChoice LTMCTDimensionBase` exhibits the bespoke five-field record as
+`LTMCTUnitChoices ≃ TypedChoice LTMCTDimensionBase` exhibits the bespoke five-field record as
 that instance. The scaling laws are **not** re-proved here: they live once on the
 magnitude layer `UnitScale B`, and the typed layer is a thin faithful wrapper projecting
 onto it via `toScale`.
@@ -61,7 +61,7 @@ variable {B : Type}
 end UnitSystem
 
 /-- A **typed unit choice** over a basis `B` equipped with a `UnitSystem`: a typed unit
-  at every base dimension. This is the basis-generic, *typed* form of `UnitChoices`. -/
+  at every base dimension. This is the basis-generic, *typed* form of `LTMCTUnitChoices`. -/
 def TypedChoice (B : Type) [UnitSystem B] := (b : B) → UnitSystem.Unit b
 
 namespace TypedChoice
@@ -119,18 +119,18 @@ example : TypedChoice LTMCTDimensionBase := fun
 
 /-!
 
-## `UnitChoices` is `TypedChoice LTMCTDimensionBase`
+## `LTMCTUnitChoices` is `TypedChoice LTMCTDimensionBase`
 
 The bespoke five-field record and the generic typed choice over the default basis carry
 the same data.
 
 -/
 
-namespace UnitChoices
+namespace LTMCTUnitChoices
 
-/-- The bespoke five-field `UnitChoices` and the generic `TypedChoice LTMCTDimensionBase`
+/-- The bespoke five-field `LTMCTUnitChoices` and the generic `TypedChoice LTMCTDimensionBase`
   are the same data. -/
-def equivTypedChoice : UnitChoices ≃ TypedChoice LTMCTDimensionBase where
+def equivTypedChoice : LTMCTUnitChoices ≃ TypedChoice LTMCTDimensionBase where
   toFun u := fun
     | .length => u.length
     | .time => u.time
@@ -146,22 +146,22 @@ def equivTypedChoice : UnitChoices ≃ TypedChoice LTMCTDimensionBase where
   left_inv u := by cases u; rfl
   right_inv f := by funext b; cases b <;> rfl
 
-/-- The typed generic projection agrees with the bespoke `UnitChoices.toScale`: reading
-  `UnitChoices` as a `TypedChoice` and forgetting to the magnitude layer is the same as
+/-- The typed generic projection agrees with the bespoke `LTMCTUnitChoices.toScale`: reading
+  `LTMCTUnitChoices` as a `TypedChoice` and forgetting to the magnitude layer is the same as
   the bespoke `toScale`. -/
-lemma toScale_equivTypedChoice (u : UnitChoices) :
+lemma toScale_equivTypedChoice (u : LTMCTUnitChoices) :
     (equivTypedChoice u).toScale = u.toScale := by
   refine UnitScale.ext ?_
   funext b
   cases b <;> rfl
 
-end UnitChoices
+end LTMCTUnitChoices
 
 /-!
 
 ## The bespoke scaling law is the generic fold
 
-`UnitChoices.dimScale` — the five explicit `rpow` factors written out by hand in
+`LTMCTUnitChoices.dimScale` — the five explicit `rpow` factors written out by hand in
 `Basic.lean` — is exactly the generic `UnitScale.dimScale` fold (a `Finset.prod` over the
 basis) at the `LTMCTDimensionBase` instance, applied to `toScale`. This is what makes the
 typed layer a *faithful* wrapper rather than a second, independent statement of the
@@ -178,37 +178,37 @@ private lemma prod_univ_LTMCTDimensionBase {M : Type} [CommMonoid M]
   rw [prod_insert (by decide), prod_insert (by decide), prod_insert (by decide),
     prod_insert (by decide), prod_singleton, ← mul_assoc, ← mul_assoc, ← mul_assoc]
 
-namespace UnitChoices
+namespace LTMCTUnitChoices
 
-private lemma length_ratio (u1 u2 : UnitChoices) :
+private lemma length_ratio (u1 u2 : LTMCTUnitChoices) :
     u1.length / u2.length = u1.toScale.scale .length / u2.toScale.scale .length := by
   apply NNReal.eq; rw [LengthUnit.div_eq_val, NNReal.coe_div]; rfl
 
-private lemma time_ratio (u1 u2 : UnitChoices) :
+private lemma time_ratio (u1 u2 : LTMCTUnitChoices) :
     u1.time / u2.time = u1.toScale.scale .time / u2.toScale.scale .time := by
   apply NNReal.eq; rw [TimeUnit.div_eq_val, NNReal.coe_div]; rfl
 
-private lemma mass_ratio (u1 u2 : UnitChoices) :
+private lemma mass_ratio (u1 u2 : LTMCTUnitChoices) :
     u1.mass / u2.mass = u1.toScale.scale .mass / u2.toScale.scale .mass := by
   apply NNReal.eq; rw [MassUnit.div_eq_val, NNReal.coe_div]; rfl
 
-private lemma charge_ratio (u1 u2 : UnitChoices) :
+private lemma charge_ratio (u1 u2 : LTMCTUnitChoices) :
     u1.charge / u2.charge = u1.toScale.scale .charge / u2.toScale.scale .charge := by
   apply NNReal.eq; rw [ChargeUnit.div_eq_val, NNReal.coe_div]; rfl
 
-private lemma temperature_ratio (u1 u2 : UnitChoices) :
+private lemma temperature_ratio (u1 u2 : LTMCTUnitChoices) :
     u1.temperature / u2.temperature =
       u1.toScale.scale .temperature / u2.toScale.scale .temperature := by
   apply NNReal.eq; rw [TemperatureUnit.div_eq_val, NNReal.coe_div]; rfl
 
-/-- The hand-rolled five-factor `UnitChoices.dimScale` equals the basis-generic
+/-- The hand-rolled five-factor `LTMCTUnitChoices.dimScale` equals the basis-generic
   `UnitScale.dimScale` fold at `LTMCTDimensionBase`, applied to `toScale`. The scaling law
   therefore has a single source of truth on the magnitude layer `UnitScale B`. -/
-lemma dimScale_eq_toScale_dimScale (u1 u2 : UnitChoices) (d : Dimension LTMCTDimensionBase) :
+lemma dimScale_eq_toScale_dimScale (u1 u2 : LTMCTUnitChoices) (d : Dimension LTMCTDimensionBase) :
     u1.dimScale u2 d = UnitScale.dimScale u1.toScale u2.toScale d := by
   rw [dimScale_apply, length_ratio, time_ratio, mass_ratio, charge_ratio, temperature_ratio,
     UnitScale.dimScale, MonoidHom.coe_mk, OneHom.coe_mk, prod_univ_LTMCTDimensionBase]
   simp only [Dimension.length, Dimension.time, Dimension.mass, Dimension.charge,
     Dimension.temperature]
 
-end UnitChoices
+end LTMCTUnitChoices
