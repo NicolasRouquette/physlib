@@ -8,32 +8,48 @@ module
 public import Physlib.Units.ParametricUnits
 /-!
 
-# Typed unit systems, parametrised in a dimension basis
+# Unit systems, parametrised in a dimension basis
 
-`Dimension B` is basis-generic and `ParametricUnits` gives the basis-generic *magnitude*
-layer `UnitScale B` (a positive real per base dimension, with the scaling homomorphism
-`UnitScale.dimScale` proved once via `Finset.prod`). What was still hardwired to the
-default basis is the *typed* unit side: `LTMCTUnitChoices` is a bespoke five-field record with
-one named unit type per base dimension (`LengthUnit`, `TimeUnit`, …).
+A **unit system** is the everyday physics object: a rule fixing one concrete unit for
+each base quantity. SI fixes the metre for length, the second for time, the kilogram for
+mass, …; CGS fixes the centimetre, second and gram. Choosing a system gives every quantity
+a numerical value; changing systems rescales those values.
 
-This module provides the generic typed layer. A `UnitSystem B` attaches to a basis `B` a
-family of *typed* unit types — one per base dimension — each carrying a positive-real
-magnitude:
+This module makes that notion work for *any* dimension basis `B` (matching the
+basis-generic `Dimension B`), while keeping units *typed*: the unit in the length slot has
+type `LengthUnit`, the one in the time slot `TimeUnit`, so the checker rejects a mass unit
+in a length slot.
 
-* `UnitSystem B` — the class: `Unit : B → Type`, `mag`, `mag_pos`.
-* `TypedChoice B` — a typed unit at every base dimension, `(b : B) → UnitSystem.Unit b`.
-* `TypedChoice.toScale : TypedChoice B → UnitScale B` — forget the types down to the
-  magnitude layer already provided by `ParametricUnits`.
+* `UnitMagnitudeCatalog B` — the **menu** for basis `B`. For each base dimension `b : B` it
+  gives a *type* `Unit b` of admissible units — so a dimension may offer many (length: metre,
+  kilometre, micrometre, …) — and a *function* `mag` assigning each unit its one positive-real
+  magnitude. The menu lists the options and picks none; many unit systems share one catalog.
+* `UnitSystem B` — the **pick**: a function choosing *exactly one* unit per base dimension. A
+  single unit system therefore fixes one length unit — metre *or* kilometre, never both — so
+  metre and kilometre are two menu entries selected by two different `UnitSystem`s over the
+  same catalog. SI and CGS are two such picks.
+* `UnitSystem.toScale : UnitSystem B → UnitScale B` — forget the unit *types*, keep only
+  the magnitudes, landing in the bare magnitude layer `UnitScale B` where the scaling
+  homomorphism `UnitScale.dimScale` is proved once.
 
-The `LTMCTDimensionBase` instance recovers exactly today's typed unit names, and
-`LTMCTUnitChoices ≃ TypedChoice LTMCTDimensionBase` exhibits the bespoke five-field record as
-that instance. The scaling laws are **not** re-proved here: they live once on the
-magnitude layer `UnitScale B`, and the typed layer is a thin faithful wrapper projecting
-onto it via `toScale`.
+**Menu vs. pick.** The catalog is a menu, not a choice: it says which units exist and what
+each weighs, but selects none — a `UnitSystem` makes the selection. And in PhysLib a base
+unit *is* a positive real (`{ val : ℝ // 0 < val }`), i.e. its own magnitude, so the
+magnitude comes fixed with the unit; there is no separate "assign a magnitude" step. Hence
+metre, micrometre and kilometre are three *different* units on the one length menu, and
+"SI in metres" versus "the same in micrometres" are two different `UnitSystem`s over the
+**same** catalog — related by `UnitScale.dimScale`, which computes the 10⁶ factor between
+them. (The multiplicity one might expect from "many magnitudes" lives here, among the unit
+systems, not in many catalogs.)
+
+The `LTMCTDimensionBase` catalog recovers PhysLib's five named unit types, and
+`LTMCTUnitChoices ≃ UnitSystem LTMCTDimensionBase` exhibits the bespoke five-field record
+as that instance. Scaling laws are **not** re-proved here — they live once on `UnitScale B`,
+and the typed layer is a thin faithful wrapper projecting onto it via `toScale`.
 
 This is the typed, basis-generic layer discussed as "Option D" in the review of the
-dimension-parametrisation PR; it is the only design that keeps *both* basis-genericity
-and typed-unit safety.
+dimension-parametrisation PR; it is the only design that keeps *both* basis-genericity and
+typed-unit safety.
 
 -/
 
@@ -42,11 +58,12 @@ and typed-unit safety.
 open NNReal
 open scoped BigOperators
 
-/-- A **typed unit system** for a basis `B`: for each base dimension `b : B`, a typed
-  unit type `Unit b`, together with the positive-real magnitude `mag` of each such unit.
-  This is the data that makes a *typed* unit choice over `B` (as opposed to the bare
-  magnitude layer `UnitScale B`) possible for an arbitrary basis. -/
-class UnitSystem (B : Type) where
+/-- A **menu of typed units** for a basis `B`: for each base dimension `b : B`, a *type*
+  `Unit b` of admissible units (a dimension may offer several — metre, kilometre, …) and a
+  *function* `mag` giving each its single positive-real magnitude. It lists the options and
+  picks none — a `UnitSystem` makes the pick. One catalog underlies many unit systems (SI,
+  CGS, …); the magnitude is the data `toScale` reads to drive rescaling. -/
+class UnitMagnitudeCatalog (B : Type) where
   /-- The typed unit type at each base dimension. -/
   Unit : B → Type
   /-- The positive-real magnitude of a typed unit. -/
@@ -54,44 +71,45 @@ class UnitSystem (B : Type) where
   /-- Every typed unit has a positive magnitude. -/
   mag_pos : ∀ {b : B} (u : Unit b), 0 < mag u
 
+/-- A **unit system** over a basis `B` with a `UnitMagnitudeCatalog`: one typed unit chosen
+  per base dimension — the pick off the catalog's menu, and the formal counterpart of SI,
+  CGS, …. Over the default basis, `u .length : LengthUnit`, and a `MassUnit` cannot be
+  placed in the length slot. -/
+def UnitSystem (B : Type) [UnitMagnitudeCatalog B] := (b : B) → UnitMagnitudeCatalog.Unit b
+
 namespace UnitSystem
 
-variable {B : Type}
+variable {B : Type} [UnitMagnitudeCatalog B]
+
+/-- Two unit systems agree once they pick the same unit at every base dimension: `UnitSystem`
+  is extensional, as befits a choice-per-dimension. -/
+@[ext]
+theorem ext {u v : UnitSystem B} (h : ∀ b, u b = v b) : u = v := funext h
+
+/-- Forget a unit system to its magnitude layer `UnitScale B`: keep each chosen unit's
+  magnitude, drop its type — the layer where `UnitScale.dimScale` is already proved. -/
+noncomputable def toScale (u : UnitSystem B) : UnitScale B where
+  scale b := UnitMagnitudeCatalog.mag (u b)
+  scale_pos b := UnitMagnitudeCatalog.mag_pos (u b)
+
+@[simp]
+lemma toScale_scale (u : UnitSystem B) (b : B) :
+    (toScale u).scale b = UnitMagnitudeCatalog.mag (u b) := rfl
 
 end UnitSystem
 
-/-- A **typed unit choice** over a basis `B` equipped with a `UnitSystem`: a typed unit
-  at every base dimension. This is the basis-generic, *typed* form of `LTMCTUnitChoices`. -/
-def TypedChoice (B : Type) [UnitSystem B] := (b : B) → UnitSystem.Unit b
-
-namespace TypedChoice
-
-variable {B : Type} [UnitSystem B]
-
-/-- Forget a typed unit choice down to its magnitude layer `UnitScale B`, the layer on
-  which the scaling homomorphism `UnitScale.dimScale` is already proved. -/
-noncomputable def toScale (u : TypedChoice B) : UnitScale B where
-  scale b := UnitSystem.mag (u b)
-  scale_pos b := UnitSystem.mag_pos (u b)
-
-@[simp]
-lemma toScale_scale (u : TypedChoice B) (b : B) :
-    (toScale u).scale b = UnitSystem.mag (u b) := rfl
-
-end TypedChoice
-
 /-!
 
-## The `LTMCTDimensionBase` instance
+## The `LTMCTDimensionBase` catalog
 
-The default basis's `UnitSystem` recovers exactly PhysLib's five named typed unit types,
-so `TypedChoice LTMCTDimensionBase` is the typed five-slot unit choice and
+The default basis's `UnitMagnitudeCatalog` recovers exactly PhysLib's five named typed unit
+types, so `UnitSystem LTMCTDimensionBase` is the typed five-slot unit system and
 `u .length : LengthUnit`, `LengthUnit.meters`, … all still work — and a `MassUnit` cannot
 be placed in the length slot.
 
 -/
 
-noncomputable instance : UnitSystem LTMCTDimensionBase where
+noncomputable instance : UnitMagnitudeCatalog LTMCTDimensionBase where
   Unit
     | .length => LengthUnit
     | .time => TimeUnit
@@ -105,12 +123,11 @@ noncomputable instance : UnitSystem LTMCTDimensionBase where
     match b with
     | .length | .time | .mass | .charge | .temperature => fun u => NNReal.coe_pos.mp u.val_pos
 
-/-- Type-safety check: a typed unit choice over `LTMCTDimensionBase` projects onto the
-  named typed unit types, so the length slot is a `LengthUnit` (and cannot hold a
-  `MassUnit`). -/
-example (u : TypedChoice LTMCTDimensionBase) : LengthUnit := u .length
+/-- Type-safety check: a unit system over `LTMCTDimensionBase` projects onto the named typed
+  unit types, so the length slot is a `LengthUnit` (and cannot hold a `MassUnit`). -/
+example (u : UnitSystem LTMCTDimensionBase) : LengthUnit := u .length
 
-example : TypedChoice LTMCTDimensionBase := fun
+example : UnitSystem LTMCTDimensionBase := fun
   | .length => LengthUnit.meters
   | .time => TimeUnit.seconds
   | .mass => MassUnit.kilograms
@@ -119,18 +136,18 @@ example : TypedChoice LTMCTDimensionBase := fun
 
 /-!
 
-## `LTMCTUnitChoices` is `TypedChoice LTMCTDimensionBase`
+## `LTMCTUnitChoices` is `UnitSystem LTMCTDimensionBase`
 
-The bespoke five-field record and the generic typed choice over the default basis carry
+The bespoke five-field record and the generic unit system over the default basis carry
 the same data.
 
 -/
 
 namespace LTMCTUnitChoices
 
-/-- The bespoke five-field `LTMCTUnitChoices` and the generic `TypedChoice LTMCTDimensionBase`
+/-- The bespoke five-field `LTMCTUnitChoices` and the generic `UnitSystem LTMCTDimensionBase`
   are the same data. -/
-def equivTypedChoice : LTMCTUnitChoices ≃ TypedChoice LTMCTDimensionBase where
+def equivUnitSystem : LTMCTUnitChoices ≃ UnitSystem LTMCTDimensionBase where
   toFun u := fun
     | .length => u.length
     | .time => u.time
@@ -147,10 +164,10 @@ def equivTypedChoice : LTMCTUnitChoices ≃ TypedChoice LTMCTDimensionBase where
   right_inv f := by funext b; cases b <;> rfl
 
 /-- The typed generic projection agrees with the bespoke `LTMCTUnitChoices.toScale`: reading
-  `LTMCTUnitChoices` as a `TypedChoice` and forgetting to the magnitude layer is the same as
+  `LTMCTUnitChoices` as a `UnitSystem` and forgetting to the magnitude layer is the same as
   the bespoke `toScale`. -/
-lemma toScale_equivTypedChoice (u : LTMCTUnitChoices) :
-    (equivTypedChoice u).toScale = u.toScale := by
+lemma toScale_equivUnitSystem (u : LTMCTUnitChoices) :
+    (equivUnitSystem u).toScale = u.toScale := by
   refine UnitScale.ext ?_
   funext b
   cases b <;> rfl
@@ -170,7 +187,10 @@ scaling law: there is one source of truth, the generic fold on `UnitScale B`.
 -/
 
 open Finset in
-private lemma prod_univ_LTMCTDimensionBase {M : Type} [CommMonoid M]
+/-- The product over the five default base quantities, in canonical enumeration order — a
+  reusable fact about the `Fintype` enumeration of `LTMCTDimensionBase`, for folding
+  `Finset.prod` over the default basis (e.g. in a hand-rolled scaling law). -/
+lemma prod_univ_LTMCTDimensionBase {M : Type} [CommMonoid M]
     (f : LTMCTDimensionBase → M) :
     ∏ b, f b = f .length * f .time * f .mass * f .charge * f .temperature := by
   rw [show (univ : Finset LTMCTDimensionBase)

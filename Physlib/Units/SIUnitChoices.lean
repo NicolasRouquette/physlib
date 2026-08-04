@@ -14,7 +14,7 @@ public import Physlib.Units.ISQDimensionBase
 `LTMCTUnitChoices` is the typed unit choice over PhysLib's default dimension basis
 `LTMCTDimensionBase`. This module gives the *second* typed unit choice — over the
 seven ISQ base quantities `ISQDimensionBase` — realised through the basis-generic
-`UnitSystem` / `TypedChoice` machinery of `Physlib.Units.UnitSystem`. It is the concrete
+`UnitMagnitudeCatalog` / `UnitSystem` machinery of `Physlib.Units.UnitSystem`. It is the concrete
 payoff of parametrising the unit side: the same generic layer produces a fully *typed*
 unit choice over a different basis, and the scaling homomorphism comes for free from
 `UnitScale.dimScale` — nothing is re-proved by hand.
@@ -27,7 +27,7 @@ here. (They follow the `LengthUnit` convention of a positive-real magnitude; the
 division/scaling API can be filled in later and, following PhysLib's layout, they would
 ultimately live under the relevant physics directories.)
 
-`SIUnitChoices := TypedChoice ISQDimensionBase` is then the typed SI unit choice, and
+`SIUnitChoices := UnitSystem ISQDimensionBase` is then the typed SI unit choice, and
 `SIUnitChoices.SI` is the coherent SI choice (metre, kilogram, second, ampere, kelvin,
 mole, candela). Contrast `SIUnitChoices` (current-based, seven typed slots) with
 `LTMCTUnitChoices` (charge-based, five typed slots): the machinery supports both, and the
@@ -38,6 +38,7 @@ mole, candela). Contrast `SIUnitChoices` (current-based, seven typed slots) with
 @[expose] public section
 
 open NNReal
+open scoped BigOperators
 
 /-!
 
@@ -131,14 +132,14 @@ end LuminousIntensityUnit
 
 /-!
 
-## The ISQ `UnitSystem` instance
+## The ISQ `UnitMagnitudeCatalog` instance
 
 Each ISQ base quantity is assigned its typed unit type; the magnitude layer is the
 positive-real `val`, exactly as for the `LTMCTDimensionBase` instance.
 
 -/
 
-noncomputable instance : UnitSystem ISQDimensionBase where
+noncomputable instance : UnitMagnitudeCatalog ISQDimensionBase where
   Unit
     | .length => LengthUnit
     | .mass => MassUnit
@@ -158,14 +159,34 @@ noncomputable instance : UnitSystem ISQDimensionBase where
 
 /-!
 
+## Folding over the ISQ base quantities
+
+-/
+
+open Finset in
+/-- The product over the seven ISQ base quantities, in canonical enumeration order — the
+  `ISQDimensionBase` companion to `prod_univ_LTMCTDimensionBase`, a reusable fact about the
+  `Fintype` enumeration for folding `Finset.prod` over the ISQ basis. -/
+lemma prod_univ_ISQDimensionBase {M : Type} [CommMonoid M] (f : ISQDimensionBase → M) :
+    ∏ b, f b = f .length * f .mass * f .time * f .current * f .temperature
+      * f .amount * f .luminousIntensity := by
+  rw [show (univ : Finset ISQDimensionBase) =
+        {.length, .mass, .time, .current, .temperature, .amount, .luminousIntensity} from by
+      decide]
+  rw [prod_insert (by decide), prod_insert (by decide), prod_insert (by decide),
+    prod_insert (by decide), prod_insert (by decide), prod_insert (by decide), prod_singleton,
+    ← mul_assoc, ← mul_assoc, ← mul_assoc, ← mul_assoc, ← mul_assoc]
+
+/-!
+
 ## `SIUnitChoices`
 
 -/
 
 /-- A **typed SI unit choice**: a typed unit at every ISQ base quantity. This is the
   seven-slot, current-based sibling of the five-slot, charge-based `LTMCTUnitChoices`,
-  produced by the same basis-generic `TypedChoice` / `UnitSystem` machinery. -/
-abbrev SIUnitChoices := TypedChoice ISQDimensionBase
+  produced by the same basis-generic `UnitSystem` / `UnitMagnitudeCatalog` machinery. -/
+abbrev SIUnitChoices := UnitSystem ISQDimensionBase
 
 namespace SIUnitChoices
 
